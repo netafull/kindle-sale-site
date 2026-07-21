@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+<title>Kindleセール速報</title>
+<link>https://USERNAME.github.io/kindle-sale-site/</link>
+<description>セール中のKindle本を1時間ごとに自動更新でお届けします</description>
+<lastBuildDate>Thu, 09 Jul 2026 05:43:03 +0000</lastBuildDate>
+<item>
+<title>【58%OFF】サンプル書籍タイトル: これはプレビュー用のダミーデータです ¥499</title>
+<link>https://www.amazon.co.jp/dp/B0SAMPLE001?tag=natafull-22</link>
+<guid isPermaLink="false">B0SAMPLE001</guid>
+<category>総合</category>
+</item>
+<item>
+<title>【50%OFF】続・サンプル書籍 実際にはPA-APIから取得したデータが入ります ¥770</title>
+<link>https://www.amazon.co.jp/dp/B0SAMPLE002?tag=natafull-22</link>
+<guid isPermaLink="false">B0SAMPLE002</guid>
+<category>総合</category>
+</item>
+<item>
+<title>【30%OFF】三冊目のサンプル ¥980</title>
+<link>https://www.amazon.co.jp/dp/B0SAMPLE003?tag=natafull-22</link>
+<guid isPermaLink="false">B0SAMPLE003</guid>
+<category>総合</category>
+</item>
+<item>
+<title>【50%OFF】サンプルコミック 第1巻 ¥330</title>
+<link>https://www.amazon.co.jp/dp/B0SAMPLE004?tag=natafull-22</link>
+<guid isPermaLink="false">B0SAMPLE004</guid>
+<category>コミック</category>
+</item>
+</channel>
+</rss>

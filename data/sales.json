@@ -1,0 +1,62 @@
+{
+  "fetched_at": "2026-07-09T03:00:00+00:00",
+  "min_saving_percent": 30,
+  "genres": [
+    {
+      "name": "総合",
+      "items": [
+        {
+          "asin": "B0SAMPLE001",
+          "title": "サンプル書籍タイトル: これはプレビュー用のダミーデータです",
+          "author": "山田 太郎",
+          "price": 499,
+          "list_price": 1200,
+          "percent_off": 58,
+          "image": null,
+          "url": "https://www.amazon.co.jp/dp/B0SAMPLE001?tag=natafull-22"
+        },
+        {
+          "asin": "B0SAMPLE002",
+          "title": "続・サンプル書籍 実際にはPA-APIから取得したデータが入ります",
+          "author": "鈴木 花子",
+          "price": 770,
+          "list_price": 1540,
+          "percent_off": 50,
+          "points": 77,
+          "points_percent": 10,
+          "image": null,
+          "url": "https://www.amazon.co.jp/dp/B0SAMPLE002?tag=natafull-22"
+        },
+        {
+          "asin": "B0SAMPLE003",
+          "title": "三冊目のサンプル",
+          "author": "佐藤 次郎",
+          "price": 980,
+          "list_price": 1400,
+          "percent_off": 30,
+          "image": null,
+          "url": "https://www.amazon.co.jp/dp/B0SAMPLE003?tag=natafull-22"
+        }
+      ]
+    },
+    {
+      "name": "コミック",
+      "items": [
+        {
+          "asin": "B0SAMPLE004",
+          "title": "サンプルコミック 第1巻",
+          "author": "漫画家 A",
+          "price": 330,
+          "list_price": 660,
+          "percent_off": 50,
+          "image": null,
+          "url": "https://www.amazon.co.jp/dp/B0SAMPLE004?tag=natafull-22"
+        }
+      ]
+    },
+    {
+      "name": "ビジネス・経済",
+      "items": []
+    }
+  ]
+}
