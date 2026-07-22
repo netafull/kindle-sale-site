@@ -117,11 +117,14 @@ def parse_items(response: dict, partner_tag: str) -> list[dict]:
             continue
 
         # searchIndex=KindleStoreだけでは物理商品が紛れ込むため、
-        # binding(商品形態)がKindleのものだけに絞り込む
+        # productGroupに"Ebook"を含むものだけに絞り込む。
+        # bindingは"Kindle版"(雑誌)や"コミック"(コミック)などジャンルにより
+        # 表記が割れて信頼できないが、productGroupは実データで
+        # "Ebook" / "Digital Ebook Purchase" のように一貫していた
         classifications = pick(item_info, "classifications", "Classifications") or {}
-        binding = pick(classifications, "binding", "Binding") or {}
-        binding_value = pick(binding, "displayValue", "DisplayValue")
-        if binding_value != "Kindle":
+        product_group = pick(classifications, "productGroup", "ProductGroup") or {}
+        product_group_value = pick(product_group, "displayValue", "DisplayValue") or ""
+        if "ebook" not in product_group_value.lower():
             continue
 
         listing = listings[0]
@@ -250,12 +253,6 @@ def main() -> int:
                     )
                     res = {}
                     break
-            if os.environ.get("DEBUG_RAW_ITEM") and res.get("searchResult", {}).get("items"):
-                print(
-                    "[debug] raw item: "
-                    + json.dumps(res["searchResult"]["items"][0], ensure_ascii=False)[:2000],
-                    file=sys.stderr,
-                )
             for parsed in parse_items(res, partner_tag):
                 if parsed["asin"] not in seen:
                     seen.add(parsed["asin"])
