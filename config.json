@@ -5,9 +5,18 @@
   "min_saving_percent": 20,
   "pages_per_genre": 5,
   "genres": [
-    { "name": "総合", "browse_node_id": "2275256051" },
-    { "name": "マンガ", "browse_node_id": "2293143051" },
-    { "name": "ビジネス・経済", "browse_node_id": "2291905051" },
-    { "name": "文学・評論", "browse_node_id": "2292699051" }
+    { "name": "総合", "browse_node_ids": ["2275256051"] },
+    {
+      "name": "マンガ",
+      "browse_node_ids": [
+        "2293143051",
+        "2430812051",
+        "2430869051",
+        "2430765051",
+        "2430737051"
+      ]
+    },
+    { "name": "ビジネス・経済", "browse_node_ids": ["2291905051"] },
+    { "name": "文学・評論", "browse_node_ids": ["2292699051"] }
   ]
 }

@@ -16,6 +16,7 @@ from __future__ import annotations
 import datetime
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -41,6 +42,34 @@ RESOURCES = [
     "offersV2.listings.isBuyBoxWinner",
     "offersV2.listings.loyaltyPoints",
 ]
+
+
+def series_key(title: str) -> str:
+    """同一シリーズの巻違いをまとめるための正規化キーを作る。
+
+    括弧内(巻数・レーベル名)と数字・空白を取り除く。巻違いの表記ゆれ
+    (タイトルの繰り返し等)があるため、比較はis_same_seriesの前方一致で行う。
+    """
+    t = re.sub(r"[（(【\[].*?[）)】\]]", "", title)
+    t = re.sub(r"[0-9０-９]+", "", t)
+    t = re.sub(r"第.{1,3}巻", "", t)
+    return re.sub(r"\s+", "", t) or title
+
+
+def is_same_series(key: str, seen_keys: set[str]) -> bool:
+    """前方一致でシリーズの同一性を判定する。
+
+    「モブサイコ」と「モブサイコモブサイコ」(巻によってタイトル表記が
+    繰り返されるゆれ)を同一視するため。誤結合を避けるため、短い方が
+    4文字未満の場合は完全一致のみ許す。
+    """
+    for s in seen_keys:
+        short, long_ = (key, s) if len(key) <= len(s) else (s, key)
+        if short == long_:
+            return True
+        if len(short) >= 4 and long_.startswith(short):
+            return True
+    return False
 
 
 def pick(d: dict, *keys):
@@ -253,15 +282,20 @@ def main() -> int:
         seen: set[str] = set()
         items: list[dict] = []
         dropped = 0
-        for sort_by, page in (
-            (s, p) for s in SORT_ORDERS for p in range(1, pages + 1)
+        # 旧形式(browse_node_id: 単一)と新形式(browse_node_ids: 配列)の両対応
+        node_ids = genre.get("browse_node_ids") or [genre.get("browse_node_id")]
+        for node_id, sort_by, page in (
+            (n, s, p)
+            for n in node_ids
+            for s in SORT_ORDERS
+            for p in range(1, pages + 1)
         ):
             for attempt in range(3):
                 try:
                     res = search_items(
                         access_token,
                         partner_tag,
-                        browse_node_id=genre.get("browse_node_id"),
+                        browse_node_id=node_id,
                         item_page=page,
                         sort_by=sort_by,
                     )
@@ -311,8 +345,21 @@ def main() -> int:
             key=lambda x: (x["percent_off"] or 0) + (x["points_percent"] or 0),
             reverse=True,
         )
-        genres.append({"name": genre["name"], "items": items})
-        print(f"{genre['name']}: {len(items)}冊 (割引不足で{dropped}冊除外)")
+        # 同一シリーズの巻違いは、最もお得な1冊だけ残す
+        # (ソート済みなので最初に出てきたものが最良)
+        series_seen: set[str] = set()
+        deduped = []
+        for item in items:
+            key = series_key(item["title"])
+            if is_same_series(key, series_seen):
+                continue
+            series_seen.add(key)
+            deduped.append(item)
+        genres.append({"name": genre["name"], "items": deduped})
+        print(
+            f"{genre['name']}: {len(deduped)}冊 "
+            f"(割引不足で{dropped}冊、シリーズ重複で{len(items) - len(deduped)}冊除外)"
+        )
 
     if sum(len(g["items"]) for g in genres) == 0:
         # 全ジャンル0冊はAPI障害・キー失効の可能性が高い。
