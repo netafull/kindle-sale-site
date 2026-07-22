@@ -112,7 +112,6 @@
 
   function render(container, data) {
     var siteUrl = data.site_url || FALLBACK_SITE_URL;
-    var siteTitle = data.site_title || "電書ポチ読み";
     var count = parseInt(container.getAttribute("data-count"), 10);
     if (!count || count < 1 || count > 5) count = 3;
     var books = (data.books || []).slice(0, count);
@@ -124,7 +123,7 @@
 
     var head = el("a", {
       className: "dpy-head",
-      text: "📚 本日のKindleセール — " + siteTitle,
+      text: "📚 本日のKindleセール",
       attrs: { href: siteUrl, target: "_blank", rel: "noopener" },
     });
     box.appendChild(head);
