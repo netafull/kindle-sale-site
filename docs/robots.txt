@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://netafull.github.io/kindle-sale-site/sitemap.xml

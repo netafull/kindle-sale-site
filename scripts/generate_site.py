@@ -156,14 +156,57 @@ def generate_html(data: dict) -> str:
             '</details>'
         )
 
+    site_url = CONFIG.get("site_url", "")
+    tagline = CONFIG.get("site_tagline", "")
+    page_title = (
+        f'{CONFIG["site_title"]}｜{tagline}' if tagline else CONFIG["site_title"]
+    )
+
+    # 構造化データ: サイト情報と開催中セール企画の一覧
+    json_ld = json.dumps(
+        [
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": CONFIG["site_title"],
+                "url": site_url,
+                "description": CONFIG["site_description"],
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": "開催中のKindle本セール企画",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": i + 1,
+                        "name": c["name"],
+                        "url": c["url"],
+                    }
+                    for i, c in enumerate(campaigns)
+                ],
+            },
+        ],
+        ensure_ascii=False,
+    ).replace("</", "<\\/")
+
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(CONFIG["site_title"])}</title>
+<title>{esc(page_title)}</title>
 <meta name="description" content="{esc(CONFIG["site_description"])}">
+<link rel="canonical" href="{esc(site_url)}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{esc(page_title)}">
+<meta property="og:description" content="{esc(CONFIG["site_description"])}">
+<meta property="og:url" content="{esc(site_url)}">
+<meta property="og:site_name" content="{esc(CONFIG["site_title"])}">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+<script type="application/ld+json">{json_ld}</script>
 <style>{CSS}</style>
 </head>
 <body>
@@ -222,15 +265,35 @@ def generate_rss(data: dict) -> str:
 """
 
 
+def generate_sitemap(data: dict) -> str:
+    site_url = CONFIG.get("site_url", "")
+    lastmod = data["fetched_at"][:10]
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>{esc(site_url)}</loc>
+<lastmod>{lastmod}</lastmod>
+<changefreq>hourly</changefreq>
+</url>
+</urlset>
+"""
+
+
 def main():
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    site_url = CONFIG.get("site_url", "")
     DOCS.mkdir(exist_ok=True)
     (DOCS / "index.html").write_text(generate_html(data), encoding="utf-8")
     (DOCS / "rss.xml").write_text(generate_rss(data), encoding="utf-8")
+    (DOCS / "sitemap.xml").write_text(generate_sitemap(data), encoding="utf-8")
+    (DOCS / "robots.txt").write_text(
+        f"User-agent: *\nAllow: /\nSitemap: {site_url}sitemap.xml\n",
+        encoding="utf-8",
+    )
     total = len(data.get("others") or []) + sum(
         len(c["items"]) for c in data.get("campaigns") or []
     )
-    print(f"generated: docs/index.html, docs/rss.xml ({total}冊)")
+    print(f"generated: index.html, rss.xml, sitemap.xml, robots.txt ({total}冊)")
 
 
 if __name__ == "__main__":
