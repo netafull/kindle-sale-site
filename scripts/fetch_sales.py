@@ -71,23 +71,32 @@ def get_access_token(credential_id: str, credential_secret: str) -> str:
     return payload["access_token"]
 
 
+# セール本の発見効率を上げるため複数のソート順で検索する。
+# Featuredだけだと割引本の遭遇率が低く、安い順はセール本(99円〜)が
+# 上位に集まりやすい
+SORT_ORDERS = ["Featured", "Price:LowToHigh"]
+
+
 def search_items(
     access_token: str,
     partner_tag: str,
     *,
     browse_node_id: str | None,
-    min_saving_percent: int,
     item_page: int,
+    sort_by: str,
 ) -> dict:
+    # 注意: minSavingPercentは絶対に送らないこと。Creators APIのバグで、
+    # このパラメータを付けると検索結果が壊れる(件数が激減し、Kindle本
+    # 以外の物理商品が混入し、savings情報も返らなくなる)ことを実データで
+    # 確認済み。割引の絞り込みはparse_items側のクライアントフィルタで行う
     body = {
         "partnerTag": partner_tag,
         "partnerType": "Associates",
         "marketplace": MARKETPLACE,
         "searchIndex": "KindleStore",
-        "minSavingPercent": min_saving_percent,
         "itemPage": item_page,
         "itemCount": 10,
-        "sortBy": "Featured",
+        "sortBy": sort_by,
         "resources": RESOURCES,
     }
     if browse_node_id:
@@ -149,6 +158,11 @@ def parse_items(
             continue
         # 金額は浮動小数点数(例: 499.0)で返る。円は整数なので丸める
         price = int(round(price))
+        # ¥0の本は除外する。青空文庫系の恒久無料本が「100%OFF」として
+        # ランキング上位を占拠してしまい、セール情報としてはノイズになる
+        if price == 0:
+            no_discount += 1
+            continue
 
         basis_block = pick(price_block, "savingBasis", "SavingBasis") or {}
         basis_money = pick(basis_block, "money", "Money") or {}
@@ -239,15 +253,17 @@ def main() -> int:
         seen: set[str] = set()
         items: list[dict] = []
         dropped = 0
-        for page in range(1, pages + 1):
+        for sort_by, page in (
+            (s, p) for s in SORT_ORDERS for p in range(1, pages + 1)
+        ):
             for attempt in range(3):
                 try:
                     res = search_items(
                         access_token,
                         partner_tag,
                         browse_node_id=genre.get("browse_node_id"),
-                        min_saving_percent=min_saving,
                         item_page=page,
+                        sort_by=sort_by,
                     )
                     break
                 except urllib.error.HTTPError as e:

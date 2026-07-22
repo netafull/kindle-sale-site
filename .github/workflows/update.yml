@@ -1,10 +1,8 @@
 name: Update Kindle sale site
 
 on:
-  # CREATORSAPI_*のSecretsを登録するまで自動実行を止めておく(失敗メール防止)
-  # 登録が終わったらこのコメントを外す
-  # schedule:
-  #   - cron: "7 * * * *"  # 毎時7分に実行 (UTC)
+  schedule:
+    - cron: "7 * * * *"  # 毎時7分に実行 (UTC)
   workflow_dispatch:
 
 permissions:

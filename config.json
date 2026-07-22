@@ -6,8 +6,8 @@
   "pages_per_genre": 5,
   "genres": [
     { "name": "総合", "browse_node_id": "2275256051" },
-    { "name": "コミック", "browse_node_id": "2293143051" },
-    { "name": "ビジネス・経済", "browse_node_id": "5347106051" },
-    { "name": "文学・評論", "browse_node_id": "2275257051" }
+    { "name": "マンガ", "browse_node_id": "2293143051" },
+    { "name": "ビジネス・経済", "browse_node_id": "2291905051" },
+    { "name": "文学・評論", "browse_node_id": "2292699051" }
   ]
 }
