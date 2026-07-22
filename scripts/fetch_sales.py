@@ -36,7 +36,9 @@ RESOURCES = [
     "itemInfo.byLineInfo",
     "itemInfo.classifications",
     "images.primary.medium",
+    # savingBasis(定価)とsavings(割引)はpriceリソースに内包されて返る
     "offersV2.listings.price",
+    "offersV2.listings.isBuyBoxWinner",
     "offersV2.listings.loyaltyPoints",
 ]
 
@@ -104,8 +106,12 @@ def search_items(
         return json.loads(res.read().decode("utf-8"))
 
 
-def parse_items(response: dict, partner_tag: str) -> list[dict]:
+def parse_items(
+    response: dict, partner_tag: str, min_saving: int
+) -> tuple[list[dict], int]:
+    """(掲載対象のリスト, 割引不足で除外した件数) を返す。"""
     items = []
+    no_discount = 0
     search_result = pick(response, "searchResult", "SearchResult") or {}
     for item in pick(search_result, "items", "Items") or []:
         asin = pick(item, "asin", "ASIN")
@@ -127,7 +133,15 @@ def parse_items(response: dict, partner_tag: str) -> list[dict]:
         if "ebook" not in product_group_value.lower():
             continue
 
-        listing = listings[0]
+        # 複数出品がある場合は購入ボックス(実際に買われる出品)を優先する
+        listing = next(
+            (
+                l
+                for l in listings
+                if pick(l, "isBuyBoxWinner", "IsBuyBoxWinner")
+            ),
+            listings[0],
+        )
         price_block = pick(listing, "price", "Price") or {}
         money = pick(price_block, "money", "Money") or {}
         price = pick(money, "amount", "Amount")
@@ -152,6 +166,13 @@ def parse_items(response: dict, partner_tag: str) -> list[dict]:
         points_percent = (
             round(points / price * 100) if points and price else None
         )
+
+        # minSavingPercentはAPI側で無視されることが実データで確認された
+        # (割引なし商品が多数返ってくる)ため、割引の有無はここで判定する。
+        # 割引率とポイント還元率の合算が閾値を下回る本は掲載しない
+        if (percent_off or 0) + (points_percent or 0) < min_saving:
+            no_discount += 1
+            continue
 
         contributors = pick(
             pick(item_info, "byLineInfo", "ByLineInfo") or {},
@@ -184,7 +205,7 @@ def parse_items(response: dict, partner_tag: str) -> list[dict]:
                 "url": url,
             }
         )
-    return items
+    return items, no_discount
 
 
 def main() -> int:
@@ -217,6 +238,7 @@ def main() -> int:
     for genre in config["genres"]:
         seen: set[str] = set()
         items: list[dict] = []
+        dropped = 0
         for page in range(1, pages + 1):
             for attempt in range(3):
                 try:
@@ -230,8 +252,15 @@ def main() -> int:
                     break
                 except urllib.error.HTTPError as e:
                     if e.code == 401 and attempt < 2:
-                        # トークン切れ。再取得して1回だけ再試行する
-                        access_token = get_access_token(credential_id, credential_secret)
+                        # トークン切れ。再取得して再試行する。
+                        # 再取得自体の失敗でクラッシュしないよう握りつぶし、
+                        # 次のattemptの401でwarn扱いに落とす
+                        try:
+                            access_token = get_access_token(
+                                credential_id, credential_secret
+                            )
+                        except (urllib.error.URLError, TimeoutError, OSError):
+                            pass
                         continue
                     if e.code == 429 and attempt < 2:
                         time.sleep(5 * (attempt + 1))
@@ -253,7 +282,9 @@ def main() -> int:
                     )
                     res = {}
                     break
-            for parsed in parse_items(res, partner_tag):
+            parsed_items, no_discount = parse_items(res, partner_tag, min_saving)
+            dropped += no_discount
+            for parsed in parsed_items:
                 if parsed["asin"] not in seen:
                     seen.add(parsed["asin"])
                     items.append(parsed)
@@ -265,7 +296,7 @@ def main() -> int:
             reverse=True,
         )
         genres.append({"name": genre["name"], "items": items})
-        print(f"{genre['name']}: {len(items)}冊")
+        print(f"{genre['name']}: {len(items)}冊 (割引不足で{dropped}冊除外)")
 
     if sum(len(g["items"]) for g in genres) == 0:
         # 全ジャンル0冊はAPI障害・キー失効の可能性が高い。
