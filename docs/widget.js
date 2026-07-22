@@ -37,7 +37,7 @@
     style.id = "dpy-widget-style";
     style.textContent = [
       "#densho-widget{font-size:14px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,\"Hiragino Sans\",\"Noto Sans JP\",sans-serif;}",
-      ".dpy-box{max-width:600px;border:1px solid #e5e2dc;border-radius:10px;overflow:hidden;background:#ffffff;color:#1a1a1a;}",
+      ".dpy-box{border:1px solid #e5e2dc;border-radius:10px;overflow:hidden;background:#ffffff;color:#1a1a1a;}",
       ".dpy-head{display:block;padding:10px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
       ".dpy-head:hover{color:#e47911;}",
       ".dpy-list{display:flex;flex-direction:column;}",
