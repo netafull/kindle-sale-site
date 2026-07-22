@@ -250,6 +250,12 @@ def main() -> int:
                     )
                     res = {}
                     break
+            if os.environ.get("DEBUG_RAW_ITEM") and res.get("searchResult", {}).get("items"):
+                print(
+                    "[debug] raw item: "
+                    + json.dumps(res["searchResult"]["items"][0], ensure_ascii=False)[:2000],
+                    file=sys.stderr,
+                )
             for parsed in parse_items(res, partner_tag):
                 if parsed["asin"] not in seen:
                     seen.add(parsed["asin"])

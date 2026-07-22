@@ -35,6 +35,7 @@ jobs:
           CREATORSAPI_CREDENTIAL_ID: ${{ secrets.CREATORSAPI_CREDENTIAL_ID }}
           CREATORSAPI_CREDENTIAL_SECRET: ${{ secrets.CREATORSAPI_CREDENTIAL_SECRET }}
           CREATORSAPI_PARTNER_TAG: ${{ secrets.CREATORSAPI_PARTNER_TAG }}
+          DEBUG_RAW_ITEM: "1" # TODO: 調査用。原因判明後に削除する
         run: python scripts/fetch_sales.py
 
       - name: Generate site
