@@ -34,8 +34,16 @@ nav a { font-size: 13px; padding: 5px 12px; border: 1px solid var(--line);
   background: var(--card); }
 nav a:hover { border-color: var(--accent); color: var(--accent); }
 main { max-width: 960px; margin: 0 auto; padding: 8px 16px 48px; }
-h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px;
-  border-left: 4px solid var(--accent); }
+h2 { font-size: 18px; margin: 0; padding-left: 10px;
+  border-left: 4px solid var(--accent); display: inline; }
+details { margin-top: 28px; }
+summary { cursor: pointer; list-style: none; user-select: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "▼"; font-size: 11px; color: var(--muted);
+  margin-right: 8px; }
+details:not([open]) summary::before { content: "▶"; }
+summary:hover h2 { color: var(--accent); }
+details > .grid, details > .empty { margin-top: 12px; }
 .grid { display: grid; gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .book { display: flex; gap: 12px; background: var(--card);
@@ -61,7 +69,7 @@ h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px;
 .group { max-width: 960px; margin: 24px auto 0; padding: 0 16px;
   font-size: 13px; font-weight: 700; color: var(--muted);
   letter-spacing: 0.08em; }
-.cmeta { color: var(--muted); font-size: 13px; margin: -6px 0 12px 14px; }
+.cmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0 19px; }
 .cmeta a { color: var(--accent); }
 footer { max-width: 960px; margin: 0 auto; padding: 16px;
   color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
@@ -71,7 +79,7 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
 <body>
 <header>
 <h1><a href="./">電書ポチ読み</a></h1>
-<p>AmazonのKindle本セール・ポイント還元情報を1時間ごとに自動更新でお届けします ｜ 20%OFF以上 ｜ 最終更新: 2026年07月22日 19:56</p>
+<p>AmazonのKindle本セール・ポイント還元情報を1時間ごとに自動更新でお届けします ｜ 20%OFF以上 ｜ 最終更新: 2026年07月22日 20:15</p>
 </header>
 <nav><a href="#c0">🔥 Kindle本 夏の超ビ</a>
 <a href="#c1">🔥 NHKテキスト バックナ</a>
@@ -85,14 +93,12 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
 <a href="#c9">🔥 【対象作品490点以上】</a>
 <a href="#c10">🔥 【対象作品950点以上】</a>
 <a href="#c11">🔥 夏の超大セール第1弾</a>
-<a href="#g0">総合</a>
-<a href="#g1">マンガ</a>
-<a href="#g2">ビジネス・経済</a>
-<a href="#g3">文学・評論</a></nav>
+<a href="#others">その他</a></nav>
 <main>
-<p class="group">開催中のセール企画</p>
-<h2 id="c0">🔥 Kindle本 夏の超ビッグセール50％ポイント還元</h2>
-<p class="cmeta">対象約1,000冊 ・ <a href="https://www.amazon.co.jp/b?node=220646056051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+<p class="group">開催中のセール企画 (新着順)</p>
+<details open id="c0">
+<summary><h2>🔥 Kindle本 夏の超ビッグセール50％ポイント還元</h2></summary>
+<p class="cmeta">対象約1,000冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220646056051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B0GJ3L7ZX1?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51XoVMogzsL._SL160_.jpg" alt="" loading="lazy">
@@ -140,8 +146,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c1">🔥 NHKテキスト バックナンバーセール</h2>
-<p class="cmeta">対象約65冊 ・ <a href="https://www.amazon.co.jp/b?node=220585200051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c1">
+<summary><h2>🔥 NHKテキスト バックナンバーセール</h2></summary>
+<p class="cmeta">対象約65冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220585200051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B0GQX69QKX?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/513CJJSrcdL._SL160_.jpg" alt="" loading="lazy">
@@ -234,8 +242,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c2">🔥 サマーセール第1弾</h2>
-<p class="cmeta">対象約1,000冊 ・ <a href="https://www.amazon.co.jp/b?node=220560501051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c2">
+<summary><h2>🔥 サマーセール第1弾</h2></summary>
+<p class="cmeta">対象約1,000冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220560501051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B00JPXEVH6?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51e51BcQulL._SL160_.jpg" alt="" loading="lazy">
@@ -319,8 +329,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c3">🔥 文藝春秋 夏の大感謝祭 50%ポイント還元セール</h2>
-<p class="cmeta">対象約1,000冊 ・ <a href="https://www.amazon.co.jp/b?node=220427974051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c3">
+<summary><h2>🔥 文藝春秋 夏の大感謝祭 50%ポイント還元セール</h2></summary>
+<p class="cmeta">対象約1,000冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220427974051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B00S9CVGXQ?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51JjoAmEi4L._SL160_.jpg" alt="" loading="lazy">
@@ -431,8 +443,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c4">🔥 「無職転生」アニメ放送作品などをお得にゲット！</h2>
-<p class="cmeta">対象約791冊 ・ <a href="https://www.amazon.co.jp/b?node=220214076051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c4">
+<summary><h2>🔥 「無職転生」アニメ放送作品などをお得にゲット！</h2></summary>
+<p class="cmeta">対象約791冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220214076051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B07TZQXMRB?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51EPrX2ljGL._SL160_.jpg" alt="" loading="lazy">
@@ -480,8 +494,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c5">🔥 宇宙兄弟</h2>
-<p class="cmeta">対象約178冊 ・ <a href="https://www.amazon.co.jp/b?node=220212228051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c5">
+<summary><h2>🔥 宇宙兄弟</h2></summary>
+<p class="cmeta">対象約178冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220212228051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B009KWUFNG?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51u9INmWNHL._SL160_.jpg" alt="" loading="lazy">
@@ -592,8 +608,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c6">🔥 夏の超大ポイントフェア</h2>
-<p class="cmeta">対象約1,000冊 ・ <a href="https://www.amazon.co.jp/b?node=220210080051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c6">
+<summary><h2>🔥 夏の超大ポイントフェア</h2></summary>
+<p class="cmeta">対象約1,000冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220210080051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B0B8749Z36?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/61wSknjX2WL._SL160_.jpg" alt="" loading="lazy">
@@ -704,8 +722,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c7">🔥 夏の超大セール第2弾</h2>
-<p class="cmeta">対象約1,000冊 ・ <a href="https://www.amazon.co.jp/b?node=220164782051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c7">
+<summary><h2>🔥 夏の超大セール第2弾</h2></summary>
+<p class="cmeta">対象約1,000冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=220164782051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B00AQY7S5K?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51FOIXL89vL._SL160_.jpg" alt="" loading="lazy">
@@ -735,8 +755,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c8">🔥 【対象作品800点以上】KADOKAWAのKindle本フェア</h2>
-<p class="cmeta">対象約847冊 ・ <a href="https://www.amazon.co.jp/b?node=219343127051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c8">
+<summary><h2>🔥 【対象作品800点以上】KADOKAWAのKindle本フェア</h2></summary>
+<p class="cmeta">対象約847冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=219343127051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B0DQKJLDHB?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51yWyJEtzSL._SL160_.jpg" alt="" loading="lazy">
@@ -829,8 +851,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c9">🔥 【対象作品490点以上】KADOKAWAのKindle本フェア</h2>
-<p class="cmeta">対象約570冊 ・ <a href="https://www.amazon.co.jp/b?node=219343124051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c9">
+<summary><h2>🔥 【対象作品490点以上】KADOKAWAのKindle本フェア</h2></summary>
+<p class="cmeta">対象約570冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=219343124051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B0DQKJLDHB?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51yWyJEtzSL._SL160_.jpg" alt="" loading="lazy">
@@ -869,8 +893,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c10">🔥 【対象作品950点以上】カドサマー2026第1弾</h2>
-<p class="cmeta">対象約999冊 ・ <a href="https://www.amazon.co.jp/b?node=219343120051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c10">
+<summary><h2>🔥 【対象作品950点以上】カドサマー2026第1弾</h2></summary>
+<p class="cmeta">対象約999冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=219343120051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B0DXYRDKZ3?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51dq1NLYclL._SL160_.jpg" alt="" loading="lazy">
@@ -981,8 +1007,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<h2 id="c11">🔥 夏の超大セール第1弾</h2>
-<p class="cmeta">対象約1,000冊 ・ <a href="https://www.amazon.co.jp/b?node=219324582051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
+</details>
+<details open id="c11">
+<summary><h2>🔥 夏の超大セール第1弾</h2></summary>
+<p class="cmeta">対象約1,000冊 ・ 7/22から掲載 ・ <a href="https://www.amazon.co.jp/b?node=219324582051&amp;tag=natafull-22" target="_blank" rel="noopener sponsored">この企画の対象本をAmazonですべて見る →</a></p>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B009DELIO6?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/610qGJSY8QL._SL160_.jpg" alt="" loading="lazy">
@@ -1093,29 +1121,9 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
   </div>
 </a>
 </div>
-<p class="group">ジャンル別</p>
-<h2 id="g0">総合 (2冊)</h2>
-<div class="grid">
-<a class="book" href="https://www.amazon.co.jp/dp/B00HC6K90Q?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51-RYfZalfL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">モブサイコ100（５） (マンガワンコミックス)</div>
-    <div class="a">ＯＮＥ</div>
-    <div class="price"><span class="now">&yen;693</span><span class="was">&yen;715</span><span class="off">3%OFF</span></div>
-    <div class="points">+593pt (86%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B009GZIU84?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51gwlDA5OFL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">LIAR GAME 2 (ヤングジャンプコミックスDIGITAL)</div>
-    <div class="a">甲斐谷忍</div>
-    <div class="price"><span class="now">&yen;100</span><span class="was">&yen;528</span><span class="off hi">81%OFF</span></div>
-    <div class="points">+1pt (1%還元)</div>
-  </div>
-</a>
-</div>
-<h2 id="g1">マンガ (8冊)</h2>
+</details>
+<details open id="others">
+<summary><h2>その他のセール本 (17冊)</h2></summary>
 <div class="grid">
 <a class="book" href="https://www.amazon.co.jp/dp/B00BTRMQ1O?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51WqSzandCL._SL160_.jpg" alt="" loading="lazy">
@@ -1135,10 +1143,10 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
     <div class="points">+593pt (86%還元)</div>
   </div>
 </a>
-<a class="book" href="https://www.amazon.co.jp/dp/B00AQY7S5K?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51FOIXL89vL._SL160_.jpg" alt="" loading="lazy">
+<a class="book" href="https://www.amazon.co.jp/dp/B00EXOD1T6?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
+  <img src="https://m.media-amazon.com/images/I/61O08kwvNQL._SL160_.jpg" alt="" loading="lazy">
   <div>
-    <div class="t">NIGHTMARE MAKER　2 (ヤングチャンピオン烈コミックス)</div>
+    <div class="t">NIGHTMARE MAKER　6 (ヤングチャンピオン烈コミックス)</div>
     <div class="a">Ｃｕｖｉｅ</div>
     <div class="price"><span class="now">&yen;99</span><span class="was">&yen;704</span><span class="off hi">86%OFF</span></div>
     <div class="points">+1pt (1%還元)</div>
@@ -1153,70 +1161,13 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
     <div class="points">+1pt (1%還元)</div>
   </div>
 </a>
-<a class="book" href="https://www.amazon.co.jp/dp/B09P1DMBMD?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51q6IcI444L._SL160_.jpg" alt="" loading="lazy">
+<a class="book" href="https://www.amazon.co.jp/dp/B0FPL791YF?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
+  <img src="https://m.media-amazon.com/images/I/51jf8f5MQKL._SL160_.jpg" alt="" loading="lazy">
   <div>
-    <div class="t">ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～: 2【電子限定描き下ろしマンガ付き】 (ZERO-SUMコミックス)</div>
-    <div class="a">尾羊 英, 中村 颯希, ゆき 哉</div>
-    <div class="price"><span class="now">&yen;369</span><span class="was">&yen;740</span><span class="off hi">50%OFF</span></div>
-    <div class="points">+4pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0CWCYJYZ7?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/515zz4-iPPL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">きみが死ぬまで恋をしたい: 7【イラスト特典付】 (百合姫コミックス)</div>
-    <div class="a">あおの なち</div>
-    <div class="price"><span class="now">&yen;407</span><span class="was">&yen;814</span><span class="off hi">50%OFF</span></div>
-    <div class="points">+4pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B095BQH7FP?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/512T+POU6iS._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">捨てられ聖女の異世界ごはん旅　隠れスキルでキャンピングカーを召喚しました　１ (B&#x27;s-LOG COMICS)</div>
-    <div class="a">小神 奈々, 米織, 仁藤 あかね</div>
-    <div class="price"><span class="now">&yen;516</span><span class="was">&yen;924</span><span class="off">44%OFF</span></div>
-    <div class="points">+5pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0D6YNQ3Y2?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/519k-1WCqnL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">天幕のジャードゥーガル　4 (ボニータ・コミックス)</div>
-    <div class="a">トマトスープ</div>
-    <div class="price"><span class="now">&yen;792</span><span class="was">&yen;880</span><span class="off">10%OFF</span></div>
-    <div class="points">+102pt (13%還元)</div>
-  </div>
-</a>
-</div>
-<h2 id="g2">ビジネス・経済 (6冊)</h2>
-<div class="grid">
-<a class="book" href="https://www.amazon.co.jp/dp/B0DQ7WQNPM?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/513phRRhi0L._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">世界秩序が変わるとき　新自由主義からのゲームチェンジ (文春新書)</div>
-    <div class="a">齋藤 ジン</div>
-    <div class="price"><span class="now">&yen;1,100</span><span class="was">&yen;1,155</span><span class="off">5%OFF</span></div>
-    <div class="points">+550pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0G69T975S?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51YB03U4qfL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">杉村太蔵の推し株「骨太」投資術 (文春e-book)</div>
-    <div class="a">杉村太蔵</div>
-    <div class="price"><span class="now">&yen;1,800</span><span class="was">&yen;1,870</span><span class="off">4%OFF</span></div>
-    <div class="points">+900pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0CM31K6NN?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51whMCXTYlL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">Sketchbook ハンス・P・バッハーの「構図」と「ショット」のアイデア</div>
-    <div class="a">ハンス・P・バッハー, ヤナガワ 智予</div>
-    <div class="price"><span class="now">&yen;2,911</span><span class="was">&yen;2,970</span><span class="off">2%OFF</span></div>
-    <div class="points">+1456pt (50%還元)</div>
+    <div class="t">アリアドネの声 (幻冬舎文庫)</div>
+    <div class="a">井上真偽</div>
+    <div class="price"><span class="now">&yen;784</span><span class="was">&yen;825</span><span class="off">5%OFF</span></div>
+    <div class="points">+392pt (50%還元)</div>
   </div>
 </a>
 <a class="book" href="https://www.amazon.co.jp/dp/B07LG7TG5N?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
@@ -1235,72 +1186,6 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
     <div class="a">バイロン・シャープ, 前平　謙二</div>
     <div class="price"><span class="now">&yen;15,092</span><span class="was">&yen;15,400</span><span class="off">2%OFF</span></div>
     <div class="points">+7546pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0G6XRJ66R?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51UzqqaPNVL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">考えてはいけないことリスト</div>
-    <div class="a">堀田秀吾</div>
-    <div class="price"><span class="now">&yen;1,287</span><span class="was">&yen;1,815</span><span class="off">29%OFF</span></div>
-    <div class="points">+13pt (1%還元)</div>
-  </div>
-</a>
-</div>
-<h2 id="g3">文学・評論 (20冊)</h2>
-<div class="grid">
-<a class="book" href="https://www.amazon.co.jp/dp/B087WS4NC4?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51woz+s249L._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">風と共にゆとりぬ (文春文庫)</div>
-    <div class="a">朝井 リョウ</div>
-    <div class="price"><span class="now">&yen;730</span><span class="was">&yen;825</span><span class="off">12%OFF</span></div>
-    <div class="points">+365pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0FPL791YF?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51jf8f5MQKL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">アリアドネの声 (幻冬舎文庫)</div>
-    <div class="a">井上真偽</div>
-    <div class="price"><span class="now">&yen;784</span><span class="was">&yen;825</span><span class="off">5%OFF</span></div>
-    <div class="points">+392pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0G569348D?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/41Z5uzL8R9L._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">青天 (文春e-book)</div>
-    <div class="a">若林 正恭</div>
-    <div class="price"><span class="now">&yen;1,900</span><span class="was">&yen;1,980</span><span class="off">4%OFF</span></div>
-    <div class="points">+950pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0BCNTVTNR?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51nUlc28QCL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">傲慢と善良 (朝日文庫)</div>
-    <div class="a">辻村　深月</div>
-    <div class="price"><span class="now">&yen;873</span><span class="was">&yen;891</span><span class="off">2%OFF</span></div>
-    <div class="points">+437pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0F4259M1G?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51w4p8y1ZtL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">成瀬は天下を取りにいく（新潮文庫） （「成瀬」シリーズ）</div>
-    <div class="a">宮島未奈</div>
-    <div class="price"><span class="now">&yen;679</span><span class="was">&yen;693</span><span class="off">2%OFF</span></div>
-    <div class="points">+340pt (50%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0CN6RZ9JP?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51ltxMq3WiL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">人体 新版 (学研の図鑑LIVE(ライブ))</div>
-    <div class="a">阿部和厚</div>
-    <div class="price"><span class="now">&yen;2,587</span><span class="was">&yen;2,640</span><span class="off">2%OFF</span></div>
-    <div class="points">+1294pt (50%還元)</div>
   </div>
 </a>
 <a class="book" href="https://www.amazon.co.jp/dp/B0C2YB5488?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
@@ -1348,6 +1233,24 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
     <div class="points">+431pt (50%還元)</div>
   </div>
 </a>
+<a class="book" href="https://www.amazon.co.jp/dp/B09P1DMBMD?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
+  <img src="https://m.media-amazon.com/images/I/51q6IcI444L._SL160_.jpg" alt="" loading="lazy">
+  <div>
+    <div class="t">ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～: 2【電子限定描き下ろしマンガ付き】 (ZERO-SUMコミックス)</div>
+    <div class="a">尾羊 英, 中村 颯希, ゆき 哉</div>
+    <div class="price"><span class="now">&yen;369</span><span class="was">&yen;740</span><span class="off hi">50%OFF</span></div>
+    <div class="points">+4pt (1%還元)</div>
+  </div>
+</a>
+<a class="book" href="https://www.amazon.co.jp/dp/B0CWCYJYZ7?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
+  <img src="https://m.media-amazon.com/images/I/515zz4-iPPL._SL160_.jpg" alt="" loading="lazy">
+  <div>
+    <div class="t">きみが死ぬまで恋をしたい: 7【イラスト特典付】 (百合姫コミックス)</div>
+    <div class="a">あおの なち</div>
+    <div class="price"><span class="now">&yen;407</span><span class="was">&yen;814</span><span class="off hi">50%OFF</span></div>
+    <div class="points">+4pt (1%還元)</div>
+  </div>
+</a>
 <a class="book" href="https://www.amazon.co.jp/dp/B07GYMDBCM?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51RhoMMeTOL._SL160_.jpg" alt="" loading="lazy">
   <div>
@@ -1366,42 +1269,6 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
     <div class="points">+1430pt (50%還元)</div>
   </div>
 </a>
-<a class="book" href="https://www.amazon.co.jp/dp/B009DELIO6?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/610qGJSY8QL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">アンドロイドは電気羊の夢を見るか？</div>
-    <div class="a">フィリップ・Ｋ・ディック, カバーデザイン:土井宏明(ポジトロン), 浅倉 久志</div>
-    <div class="price"><span class="now">&yen;891</span><span class="was">&yen;1,430</span><span class="off">38%OFF</span></div>
-    <div class="points">+9pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B09V53MNNK?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51oeO86GxEL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">火星の人〔新版〕 上 (ハヤカワ文庫SF)</div>
-    <div class="a">アンディ ウィアー, 小野田 和子</div>
-    <div class="price"><span class="now">&yen;871</span><span class="was">&yen;1,320</span><span class="off">34%OFF</span></div>
-    <div class="points">+9pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B09V554SPR?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/51Z+RIobXGL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">火星の人〔新版〕 下 (ハヤカワ文庫SF)</div>
-    <div class="a">アンディ ウィアー, 小野田 和子</div>
-    <div class="price"><span class="now">&yen;871</span><span class="was">&yen;1,320</span><span class="off">34%OFF</span></div>
-    <div class="points">+9pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0CTJH9YTQ?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/41AJG2MvOUL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">三体 (ハヤカワ文庫SF)</div>
-    <div class="a">劉 慈欣, 大森 望, 光吉 さくら, ワン チャイ, 立原 透耶</div>
-    <div class="price"><span class="now">&yen;1,089</span><span class="was">&yen;1,595</span><span class="off">32%OFF</span></div>
-    <div class="points">+11pt (1%還元)</div>
-  </div>
-</a>
 <a class="book" href="https://www.amazon.co.jp/dp/B0FK1Y4788?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
   <img src="https://m.media-amazon.com/images/I/51s-VDHOAIL._SL160_.jpg" alt="" loading="lazy">
   <div>
@@ -1411,25 +1278,8 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
     <div class="points">+14pt (1%還元)</div>
   </div>
 </a>
-<a class="book" href="https://www.amazon.co.jp/dp/B009DEMC8W?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/41dWu6kIsCL._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">一九八四年 (ハヤカワepi文庫)</div>
-    <div class="a">ジョージ・オーウェル, 高橋 和久, 高橋和久</div>
-    <div class="price"><span class="now">&yen;891</span><span class="was">&yen;1,210</span><span class="off">26%OFF</span></div>
-    <div class="points">+9pt (1%還元)</div>
-  </div>
-</a>
-<a class="book" href="https://www.amazon.co.jp/dp/B0DNSYB9L7?tag=natafull-22&amp;linkCode=osi&amp;th=1&amp;psc=1" target="_blank" rel="noopener sponsored">
-  <img src="https://m.media-amazon.com/images/I/41A3frscm1L._SL160_.jpg" alt="" loading="lazy">
-  <div>
-    <div class="t">同志少女よ、敵を撃て (ハヤカワ文庫JA)</div>
-    <div class="a">逢坂 冬馬</div>
-    <div class="price"><span class="now">&yen;1,089</span><span class="was">&yen;1,375</span><span class="off">21%OFF</span></div>
-    <div class="points">+11pt (1%還元)</div>
-  </div>
-</a>
 </div>
+</details>
 </main>
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。

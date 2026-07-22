@@ -1,8 +1,9 @@
 {
-  "fetched_at": "2026-07-22T10:56:48.602826+00:00",
+  "fetched_at": "2026-07-22T11:15:50.516942+00:00",
   "min_saving_percent": 20,
   "campaigns": [
     {
+      "node_id": "220646056051",
       "name": "Kindle本 夏の超ビッグセール50％ポイント還元",
       "url": "https://www.amazon.co.jp/b?node=220646056051&tag=natafull-22",
       "total": 1000,
@@ -67,9 +68,11 @@
           "image": "https://m.media-amazon.com/images/I/51g1SaemhNL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B00YV3XK1I?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220585200051",
       "name": "NHKテキスト バックナンバーセール",
       "url": "https://www.amazon.co.jp/b?node=220585200051&tag=natafull-22",
       "total": 65,
@@ -194,9 +197,11 @@
           "image": "https://m.media-amazon.com/images/I/51xYy8Ad9uL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0GQX9GMVC?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220560501051",
       "name": "サマーセール第1弾",
       "url": "https://www.amazon.co.jp/b?node=220560501051&tag=natafull-22",
       "total": 1000,
@@ -309,9 +314,11 @@
           "image": "https://m.media-amazon.com/images/I/51Ek21jrMnL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0FF4KYQ8F?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220427974051",
       "name": "文藝春秋 夏の大感謝祭 50%ポイント還元セール",
       "url": "https://www.amazon.co.jp/b?node=220427974051&tag=natafull-22",
       "total": 1000,
@@ -460,9 +467,11 @@
           "image": "https://m.media-amazon.com/images/I/41xmACTHisL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0GCGSVG5X?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220214076051",
       "name": "「無職転生」アニメ放送作品などをお得にゲット！",
       "url": "https://www.amazon.co.jp/b?node=220214076051&tag=natafull-22",
       "total": 791,
@@ -527,9 +536,11 @@
           "image": "https://m.media-amazon.com/images/I/51i2YZ3uWiL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0FCRW2K4N?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220212228051",
       "name": "宇宙兄弟",
       "url": "https://www.amazon.co.jp/b?node=220212228051&tag=natafull-22",
       "total": 178,
@@ -678,9 +689,11 @@
           "image": "https://m.media-amazon.com/images/I/51xRH5G9X7L._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0F6Y56GF8?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220210080051",
       "name": "夏の超大ポイントフェア",
       "url": "https://www.amazon.co.jp/b?node=220210080051&tag=natafull-22",
       "total": 1000,
@@ -829,9 +842,11 @@
           "image": "https://m.media-amazon.com/images/I/514qdSQ+jwL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0GN8JNWV5?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "220164782051",
       "name": "夏の超大セール第2弾",
       "url": "https://www.amazon.co.jp/b?node=220164782051&tag=natafull-22",
       "total": 1000,
@@ -872,9 +887,11 @@
           "image": "https://m.media-amazon.com/images/I/519k-1WCqnL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0D6YNQ3Y2?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "219343127051",
       "name": "【対象作品800点以上】KADOKAWAのKindle本フェア",
       "url": "https://www.amazon.co.jp/b?node=219343127051&tag=natafull-22",
       "total": 847,
@@ -999,9 +1016,11 @@
           "image": "https://m.media-amazon.com/images/I/51TKkf0ZgyL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0CNR537X1?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "219343124051",
       "name": "【対象作品490点以上】KADOKAWAのKindle本フェア",
       "url": "https://www.amazon.co.jp/b?node=219343124051&tag=natafull-22",
       "total": 570,
@@ -1054,9 +1073,11 @@
           "image": "https://m.media-amazon.com/images/I/51c2T9kKIfS._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B097M17CGD?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "219343120051",
       "name": "【対象作品950点以上】カドサマー2026第1弾",
       "url": "https://www.amazon.co.jp/b?node=219343120051&tag=natafull-22",
       "total": 999,
@@ -1205,9 +1226,11 @@
           "image": "https://m.media-amazon.com/images/I/51m9ZuFwmzL._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0DSZB1M33?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     },
     {
+      "node_id": "219324582051",
       "name": "夏の超大セール第1弾",
       "url": "https://www.amazon.co.jp/b?node=219324582051&tag=natafull-22",
       "total": 1000,
@@ -1356,461 +1379,214 @@
           "image": "https://m.media-amazon.com/images/I/41A3frscm1L._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B0DNSYB9L7?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
-      ]
+      ],
+      "since": "2026-07-22"
     }
   ],
-  "genres": [
+  "others": [
     {
-      "name": "総合",
-      "items": [
-        {
-          "asin": "B00HC6K90Q",
-          "title": "モブサイコ100（５） (マンガワンコミックス)",
-          "author": "ＯＮＥ",
-          "price": 693,
-          "list_price": 715,
-          "percent_off": 3,
-          "points": 593,
-          "points_percent": 86,
-          "image": "https://m.media-amazon.com/images/I/51-RYfZalfL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B00HC6K90Q?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B009GZIU84",
-          "title": "LIAR GAME 2 (ヤングジャンプコミックスDIGITAL)",
-          "author": "甲斐谷忍",
-          "price": 100,
-          "list_price": 528,
-          "percent_off": 81,
-          "points": 1,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51gwlDA5OFL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B009GZIU84?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        }
-      ]
+      "asin": "B00BTRMQ1O",
+      "title": "ゴルゴ13（１１９） (ビッグコミックス)",
+      "author": "さいとう・たかを",
+      "price": 576,
+      "list_price": null,
+      "percent_off": null,
+      "points": 518,
+      "points_percent": 90,
+      "image": "https://m.media-amazon.com/images/I/51WqSzandCL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B00BTRMQ1O?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "name": "マンガ",
-      "items": [
-        {
-          "asin": "B00BTRMQ1O",
-          "title": "ゴルゴ13（１１９） (ビッグコミックス)",
-          "author": "さいとう・たかを",
-          "price": 576,
-          "list_price": null,
-          "percent_off": null,
-          "points": 518,
-          "points_percent": 90,
-          "image": "https://m.media-amazon.com/images/I/51WqSzandCL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B00BTRMQ1O?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B00HC6K90Q",
-          "title": "モブサイコ100（５） (マンガワンコミックス)",
-          "author": "ＯＮＥ",
-          "price": 693,
-          "list_price": 715,
-          "percent_off": 3,
-          "points": 593,
-          "points_percent": 86,
-          "image": "https://m.media-amazon.com/images/I/51-RYfZalfL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B00HC6K90Q?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B00AQY7S5K",
-          "title": "NIGHTMARE MAKER　2 (ヤングチャンピオン烈コミックス)",
-          "author": "Ｃｕｖｉｅ",
-          "price": 99,
-          "list_price": 704,
-          "percent_off": 86,
-          "points": 1,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51FOIXL89vL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B00AQY7S5K?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B009GZIU84",
-          "title": "LIAR GAME 2 (ヤングジャンプコミックスDIGITAL)",
-          "author": "甲斐谷忍",
-          "price": 100,
-          "list_price": 528,
-          "percent_off": 81,
-          "points": 1,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51gwlDA5OFL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B009GZIU84?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B09P1DMBMD",
-          "title": "ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～: 2【電子限定描き下ろしマンガ付き】 (ZERO-SUMコミックス)",
-          "author": "尾羊 英, 中村 颯希, ゆき 哉",
-          "price": 369,
-          "list_price": 740,
-          "percent_off": 50,
-          "points": 4,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51q6IcI444L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B09P1DMBMD?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0CWCYJYZ7",
-          "title": "きみが死ぬまで恋をしたい: 7【イラスト特典付】 (百合姫コミックス)",
-          "author": "あおの なち",
-          "price": 407,
-          "list_price": 814,
-          "percent_off": 50,
-          "points": 4,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/515zz4-iPPL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0CWCYJYZ7?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B095BQH7FP",
-          "title": "捨てられ聖女の異世界ごはん旅　隠れスキルでキャンピングカーを召喚しました　１ (B's-LOG COMICS)",
-          "author": "小神 奈々, 米織, 仁藤 あかね",
-          "price": 516,
-          "list_price": 924,
-          "percent_off": 44,
-          "points": 5,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/512T+POU6iS._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B095BQH7FP?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0D6YNQ3Y2",
-          "title": "天幕のジャードゥーガル　4 (ボニータ・コミックス)",
-          "author": "トマトスープ",
-          "price": 792,
-          "list_price": 880,
-          "percent_off": 10,
-          "points": 102,
-          "points_percent": 13,
-          "image": "https://m.media-amazon.com/images/I/519k-1WCqnL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0D6YNQ3Y2?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        }
-      ]
+      "asin": "B00HC6K90Q",
+      "title": "モブサイコ100（５） (マンガワンコミックス)",
+      "author": "ＯＮＥ",
+      "price": 693,
+      "list_price": 715,
+      "percent_off": 3,
+      "points": 593,
+      "points_percent": 86,
+      "image": "https://m.media-amazon.com/images/I/51-RYfZalfL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B00HC6K90Q?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "name": "ビジネス・経済",
-      "items": [
-        {
-          "asin": "B0DQ7WQNPM",
-          "title": "世界秩序が変わるとき　新自由主義からのゲームチェンジ (文春新書)",
-          "author": "齋藤 ジン",
-          "price": 1100,
-          "list_price": 1155,
-          "percent_off": 5,
-          "points": 550,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/513phRRhi0L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0DQ7WQNPM?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0G69T975S",
-          "title": "杉村太蔵の推し株「骨太」投資術 (文春e-book)",
-          "author": "杉村太蔵",
-          "price": 1800,
-          "list_price": 1870,
-          "percent_off": 4,
-          "points": 900,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51YB03U4qfL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0G69T975S?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0CM31K6NN",
-          "title": "Sketchbook ハンス・P・バッハーの「構図」と「ショット」のアイデア",
-          "author": "ハンス・P・バッハー, ヤナガワ 智予",
-          "price": 2911,
-          "list_price": 2970,
-          "percent_off": 2,
-          "points": 1456,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51whMCXTYlL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0CM31K6NN?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B07LG7TG5N",
-          "title": "FACTFULNESS（ファクトフルネス）10の思い込みを乗り越え、データを基に世界を正しく見る習慣",
-          "author": "ハンス・ロスリング, オーラ・ロスリング, アンナ・ロスリング・ロンランド, 上杉 周作, 関 美和",
-          "price": 1940,
-          "list_price": 1980,
-          "percent_off": 2,
-          "points": 970,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/410QuKHYY3L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B07LG7TG5N?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0F4WQ2Y2K",
-          "title": "マーケティングの科学　セオリー・エビデンス・実践で学ぶ世界標準の技術",
-          "author": "バイロン・シャープ, 前平　謙二",
-          "price": 15092,
-          "list_price": 15400,
-          "percent_off": 2,
-          "points": 7546,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51s4Fri8GfL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0F4WQ2Y2K?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0G6XRJ66R",
-          "title": "考えてはいけないことリスト",
-          "author": "堀田秀吾",
-          "price": 1287,
-          "list_price": 1815,
-          "percent_off": 29,
-          "points": 13,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51UzqqaPNVL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0G6XRJ66R?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        }
-      ]
+      "asin": "B00EXOD1T6",
+      "title": "NIGHTMARE MAKER　6 (ヤングチャンピオン烈コミックス)",
+      "author": "Ｃｕｖｉｅ",
+      "price": 99,
+      "list_price": 704,
+      "percent_off": 86,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/61O08kwvNQL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B00EXOD1T6?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "name": "文学・評論",
-      "items": [
-        {
-          "asin": "B087WS4NC4",
-          "title": "風と共にゆとりぬ (文春文庫)",
-          "author": "朝井 リョウ",
-          "price": 730,
-          "list_price": 825,
-          "percent_off": 12,
-          "points": 365,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51woz+s249L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B087WS4NC4?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0FPL791YF",
-          "title": "アリアドネの声 (幻冬舎文庫)",
-          "author": "井上真偽",
-          "price": 784,
-          "list_price": 825,
-          "percent_off": 5,
-          "points": 392,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51jf8f5MQKL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0FPL791YF?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0G569348D",
-          "title": "青天 (文春e-book)",
-          "author": "若林 正恭",
-          "price": 1900,
-          "list_price": 1980,
-          "percent_off": 4,
-          "points": 950,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/41Z5uzL8R9L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0G569348D?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0BCNTVTNR",
-          "title": "傲慢と善良 (朝日文庫)",
-          "author": "辻村　深月",
-          "price": 873,
-          "list_price": 891,
-          "percent_off": 2,
-          "points": 437,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51nUlc28QCL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0BCNTVTNR?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0F4259M1G",
-          "title": "成瀬は天下を取りにいく（新潮文庫） （「成瀬」シリーズ）",
-          "author": "宮島未奈",
-          "price": 679,
-          "list_price": 693,
-          "percent_off": 2,
-          "points": 340,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51w4p8y1ZtL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0F4259M1G?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0CN6RZ9JP",
-          "title": "人体 新版 (学研の図鑑LIVE(ライブ))",
-          "author": "阿部和厚",
-          "price": 2587,
-          "list_price": 2640,
-          "percent_off": 2,
-          "points": 1294,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51ltxMq3WiL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0CN6RZ9JP?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0C2YB5488",
-          "title": "正欲（新潮文庫）",
-          "author": "朝井リョウ",
-          "price": 916,
-          "list_price": 935,
-          "percent_off": 2,
-          "points": 458,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/31vHmqOfdQL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0C2YB5488?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0FQ4K3TW2",
-          "title": "成瀬は都を駆け抜ける （「成瀬」シリーズ）",
-          "author": "宮島未奈",
-          "price": 1833,
-          "list_price": 1870,
-          "percent_off": 2,
-          "points": 917,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51GUdrKg9-L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0FQ4K3TW2?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0C4XK99M1",
-          "title": "52ヘルツのクジラたち【特典付き】 (中公文庫)",
-          "author": "町田そのこ",
-          "price": 798,
-          "list_price": 814,
-          "percent_off": 2,
-          "points": 399,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51AZTPyVlLL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0C4XK99M1?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0F5Q4R5TK",
-          "title": "君のクイズ (朝日文庫)",
-          "author": "小川　哲",
-          "price": 776,
-          "list_price": 792,
-          "percent_off": 2,
-          "points": 388,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/41o8ZongrUL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0F5Q4R5TK?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B09FDC3MVH",
-          "title": "国宝 上 青春篇 (朝日文庫)",
-          "author": "吉田　修一",
-          "price": 862,
-          "list_price": 880,
-          "percent_off": 2,
-          "points": 431,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/41Bq891JfrL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B09FDC3MVH?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B07GYMDBCM",
-          "title": "コンビニ人間 (文春文庫)",
-          "author": "村田 沙耶香",
-          "price": 690,
-          "list_price": 693,
-          "percent_off": 0,
-          "points": 345,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51RhoMMeTOL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B07GYMDBCM?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0CW19F4LD",
-          "title": "動物 新版 学研の図鑑LIVE(ライブ)",
-          "author": "姉崎智子",
-          "price": 2860,
-          "list_price": null,
-          "percent_off": null,
-          "points": 1430,
-          "points_percent": 50,
-          "image": "https://m.media-amazon.com/images/I/51fmCnDTdFL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0CW19F4LD?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B009DELIO6",
-          "title": "アンドロイドは電気羊の夢を見るか？",
-          "author": "フィリップ・Ｋ・ディック, カバーデザイン:土井宏明(ポジトロン), 浅倉 久志",
-          "price": 891,
-          "list_price": 1430,
-          "percent_off": 38,
-          "points": 9,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/610qGJSY8QL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B009DELIO6?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B09V53MNNK",
-          "title": "火星の人〔新版〕 上 (ハヤカワ文庫SF)",
-          "author": "アンディ ウィアー, 小野田 和子",
-          "price": 871,
-          "list_price": 1320,
-          "percent_off": 34,
-          "points": 9,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51oeO86GxEL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B09V53MNNK?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B09V554SPR",
-          "title": "火星の人〔新版〕 下 (ハヤカワ文庫SF)",
-          "author": "アンディ ウィアー, 小野田 和子",
-          "price": 871,
-          "list_price": 1320,
-          "percent_off": 34,
-          "points": 9,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51Z+RIobXGL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B09V554SPR?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0CTJH9YTQ",
-          "title": "三体 (ハヤカワ文庫SF)",
-          "author": "劉 慈欣, 大森 望, 光吉 さくら, ワン チャイ, 立原 透耶",
-          "price": 1089,
-          "list_price": 1595,
-          "percent_off": 32,
-          "points": 11,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/41AJG2MvOUL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0CTJH9YTQ?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0FK1Y4788",
-          "title": "けんぐゎい",
-          "author": "朝倉 かすみ",
-          "price": 1386,
-          "list_price": 1980,
-          "percent_off": 30,
-          "points": 14,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/51s-VDHOAIL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0FK1Y4788?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B009DEMC8W",
-          "title": "一九八四年 (ハヤカワepi文庫)",
-          "author": "ジョージ・オーウェル, 高橋 和久, 高橋和久",
-          "price": 891,
-          "list_price": 1210,
-          "percent_off": 26,
-          "points": 9,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/41dWu6kIsCL._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B009DEMC8W?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        },
-        {
-          "asin": "B0DNSYB9L7",
-          "title": "同志少女よ、敵を撃て (ハヤカワ文庫JA)",
-          "author": "逢坂 冬馬",
-          "price": 1089,
-          "list_price": 1375,
-          "percent_off": 21,
-          "points": 11,
-          "points_percent": 1,
-          "image": "https://m.media-amazon.com/images/I/41A3frscm1L._SL160_.jpg",
-          "url": "https://www.amazon.co.jp/dp/B0DNSYB9L7?tag=natafull-22&linkCode=osi&th=1&psc=1"
-        }
-      ]
+      "asin": "B009GZIU84",
+      "title": "LIAR GAME 2 (ヤングジャンプコミックスDIGITAL)",
+      "author": "甲斐谷忍",
+      "price": 100,
+      "list_price": 528,
+      "percent_off": 81,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51gwlDA5OFL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B009GZIU84?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0FPL791YF",
+      "title": "アリアドネの声 (幻冬舎文庫)",
+      "author": "井上真偽",
+      "price": 784,
+      "list_price": 825,
+      "percent_off": 5,
+      "points": 392,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/51jf8f5MQKL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0FPL791YF?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B07LG7TG5N",
+      "title": "FACTFULNESS（ファクトフルネス）10の思い込みを乗り越え、データを基に世界を正しく見る習慣",
+      "author": "ハンス・ロスリング, オーラ・ロスリング, アンナ・ロスリング・ロンランド, 上杉 周作, 関 美和",
+      "price": 1940,
+      "list_price": 1980,
+      "percent_off": 2,
+      "points": 970,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/410QuKHYY3L._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B07LG7TG5N?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0F4WQ2Y2K",
+      "title": "マーケティングの科学　セオリー・エビデンス・実践で学ぶ世界標準の技術",
+      "author": "バイロン・シャープ, 前平　謙二",
+      "price": 15092,
+      "list_price": 15400,
+      "percent_off": 2,
+      "points": 7546,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/51s4Fri8GfL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0F4WQ2Y2K?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0C2YB5488",
+      "title": "正欲（新潮文庫）",
+      "author": "朝井リョウ",
+      "price": 916,
+      "list_price": 935,
+      "percent_off": 2,
+      "points": 458,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/31vHmqOfdQL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0C2YB5488?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0FQ4K3TW2",
+      "title": "成瀬は都を駆け抜ける （「成瀬」シリーズ）",
+      "author": "宮島未奈",
+      "price": 1833,
+      "list_price": 1870,
+      "percent_off": 2,
+      "points": 917,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/51GUdrKg9-L._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0FQ4K3TW2?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0C4XK99M1",
+      "title": "52ヘルツのクジラたち【特典付き】 (中公文庫)",
+      "author": "町田そのこ",
+      "price": 798,
+      "list_price": 814,
+      "percent_off": 2,
+      "points": 399,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/51AZTPyVlLL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0C4XK99M1?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0F5Q4R5TK",
+      "title": "君のクイズ (朝日文庫)",
+      "author": "小川　哲",
+      "price": 776,
+      "list_price": 792,
+      "percent_off": 2,
+      "points": 388,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/41o8ZongrUL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0F5Q4R5TK?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B09FDC3MVH",
+      "title": "国宝 上 青春篇 (朝日文庫)",
+      "author": "吉田　修一",
+      "price": 862,
+      "list_price": 880,
+      "percent_off": 2,
+      "points": 431,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/41Bq891JfrL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B09FDC3MVH?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B09P1DMBMD",
+      "title": "ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～: 2【電子限定描き下ろしマンガ付き】 (ZERO-SUMコミックス)",
+      "author": "尾羊 英, 中村 颯希, ゆき 哉",
+      "price": 369,
+      "list_price": 740,
+      "percent_off": 50,
+      "points": 4,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51q6IcI444L._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B09P1DMBMD?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0CWCYJYZ7",
+      "title": "きみが死ぬまで恋をしたい: 7【イラスト特典付】 (百合姫コミックス)",
+      "author": "あおの なち",
+      "price": 407,
+      "list_price": 814,
+      "percent_off": 50,
+      "points": 4,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/515zz4-iPPL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0CWCYJYZ7?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B07GYMDBCM",
+      "title": "コンビニ人間 (文春文庫)",
+      "author": "村田 沙耶香",
+      "price": 690,
+      "list_price": 693,
+      "percent_off": 0,
+      "points": 345,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/51RhoMMeTOL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B07GYMDBCM?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0CW19F4LD",
+      "title": "動物 新版 学研の図鑑LIVE(ライブ)",
+      "author": "姉崎智子",
+      "price": 2860,
+      "list_price": null,
+      "percent_off": null,
+      "points": 1430,
+      "points_percent": 50,
+      "image": "https://m.media-amazon.com/images/I/51fmCnDTdFL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0CW19F4LD?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "asin": "B0FK1Y4788",
+      "title": "けんぐゎい",
+      "author": "朝倉 かすみ",
+      "price": 1386,
+      "list_price": 1980,
+      "percent_off": 30,
+      "points": 14,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51s-VDHOAIL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0FK1Y4788?tag=natafull-22&linkCode=osi&th=1&psc=1"
     }
   ]
 }

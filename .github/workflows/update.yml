@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write  # campaign_state.json(企画の掲載開始日)のコミットに必要
   pages: write
   id-token: write
 
@@ -37,6 +37,19 @@ jobs:
 
       - name: Generate site
         run: python scripts/generate_site.py
+
+      # 企画の掲載開始日を毎時実行をまたいで永続化する。
+      # pushトリガーは設定していないのでループはしない
+      - name: Persist campaign state
+        run: |
+          git add data/campaign_state.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "企画の掲載開始日を更新 [bot]"
+            git pull --rebase origin main
+            git push
+          fi
 
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:

@@ -35,6 +35,10 @@ EVENTS_NODE_ID = "204336703051"
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT / "config.json"
 OUTPUT_PATH = ROOT / "data" / "sales.json"
+# 企画ごとの初検出日。セール終了日はAPIから取得できない(dealDetailsは
+# 企画セールでは常に空)ため、「いつから掲載しているか」を自前で記録する。
+# CIがこのファイルをコミットして毎時実行をまたいで永続化する
+STATE_PATH = ROOT / "data" / "campaign_state.json"
 
 RESOURCES = [
     "itemInfo.title",
@@ -434,6 +438,7 @@ def main() -> int:
         if len(deduped) >= 3:
             campaigns.append(
                 {
+                    "node_id": cand["id"],
                     "name": cand["name"],
                     "url": (
                         f"https://www.amazon.co.jp/b?node={cand['id']}"
@@ -444,6 +449,28 @@ def main() -> int:
                 }
             )
             print(f"企画「{cand['name']}」: {len(deduped[:12])}冊 (対象約{total}冊)")
+
+    # 企画の初検出日を状態ファイルで管理し、掲載開始日として表示する
+    try:
+        state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        state = {}
+    today = datetime.datetime.now(
+        datetime.timezone(datetime.timedelta(hours=9))
+    ).strftime("%Y-%m-%d")
+    new_state = {}
+    for c in campaigns:
+        first_seen = (state.get(c["node_id"]) or {}).get("first_seen") or today
+        c["since"] = first_seen
+        new_state[c["node_id"]] = {"first_seen": first_seen, "name": c["name"]}
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(
+        json.dumps(new_state, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    # 新しく始まった企画が上に来るよう、掲載開始日の降順で並べる
+    campaigns.sort(
+        key=lambda c: (c["since"], int(c["node_id"])), reverse=True
+    )
 
     # --- ジャンル別 ---
     genres = []
@@ -475,22 +502,25 @@ def main() -> int:
                     items.append(parsed)
             time.sleep(1.2)
 
-        # 値引き率とポイント還元率を合算した「実質お得度」で並べ替え、
-        # 同一シリーズの巻違いは最もお得な1冊だけ残す
-        items.sort(key=sort_key, reverse=True)
-        deduped = dedupe_series(items)
-        genres.append({"name": genre["name"], "items": deduped})
-        print(
-            f"{genre['name']}: {len(deduped)}冊 "
-            f"(割引不足で{dropped}冊、シリーズ重複で{len(items) - len(deduped)}冊除外)"
-        )
+        genres.append({"name": genre["name"], "items": items})
+        print(f"{genre['name']}スキャン: セール品{len(items)}冊 (割引不足で{dropped}冊除外)")
 
-    if sum(len(g["items"]) for g in genres) + sum(
-        len(c["items"]) for c in campaigns
-    ) == 0:
-        # 全ジャンル・全企画0冊はAPI障害・キー失効の可能性が高い。
+    # ジャンル横断スキャンの結果は「その他のセール本」に統合する。
+    # 企画セクションに既に載っている本は除き、掘り出し物だけを見せる
+    campaign_asins = {b["asin"] for c in campaigns for b in c["items"]}
+    pool: dict[str, dict] = {}
+    for genre in genres:
+        for b in genre["items"]:
+            if b["asin"] not in campaign_asins:
+                pool.setdefault(b["asin"], b)
+    others = sorted(pool.values(), key=sort_key, reverse=True)
+    others = dedupe_series(others)[:24]
+    print(f"その他のセール本: {len(others)}冊")
+
+    if len(others) + sum(len(c["items"]) for c in campaigns) == 0:
+        # 全企画・その他とも0冊はAPI障害・キー失効の可能性が高い。
         # 空サイトで前回のデプロイを上書きしないよう失敗させる
-        print("[error] 全ジャンル・全企画で0冊のため中止します", file=sys.stderr)
+        print("[error] 全企画・その他とも0冊のため中止します", file=sys.stderr)
         return 1
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -502,7 +532,7 @@ def main() -> int:
                 ).isoformat(),
                 "min_saving_percent": min_saving,
                 "campaigns": campaigns,
-                "genres": genres,
+                "others": others,
             },
             ensure_ascii=False,
             indent=2,
