@@ -63,6 +63,11 @@ h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px;
 .off.hi { background: var(--badge-hi); }
 .points { font-size: 11px; color: #0a7d3c; font-weight: 600; margin-top: 2px; }
 @media (prefers-color-scheme: dark) { .points { color: #4fd689; } }
+.group { max-width: 960px; margin: 24px auto 0; padding: 0 16px;
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.08em; }
+.cmeta { color: var(--muted); font-size: 13px; margin: -6px 0 12px 14px; }
+.cmeta a { color: var(--accent); }
 footer { max-width: 960px; margin: 0 auto; padding: 16px;
   color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
 .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
@@ -112,11 +117,33 @@ def generate_html(data: dict) -> str:
     )
     updated = fetched.strftime("%Y年%m月%d日 %H:%M")
 
-    nav = "\n".join(
+    campaigns = data.get("campaigns") or []
+
+    nav_links = [
+        f'<a href="#c{i}">🔥 {esc(c["name"][:12])}</a>'
+        for i, c in enumerate(campaigns)
+    ] + [
         f'<a href="#g{i}">{esc(g["name"])}</a>'
         for i, g in enumerate(data["genres"])
-    )
+    ]
+    nav = "\n".join(nav_links)
+
     sections = []
+    if campaigns:
+        sections.append('<p class="group">開催中のセール企画</p>')
+    for i, c in enumerate(campaigns):
+        books = "\n".join(render_book(b) for b in c["items"])
+        total = f"対象約{c['total']:,}冊 ・ " if c.get("total") else ""
+        sections.append(
+            f'<h2 id="c{i}">🔥 {esc(c["name"])}</h2>\n'
+            f'<p class="cmeta">{total}<a href="{esc(c["url"])}" '
+            f'target="_blank" rel="noopener sponsored">'
+            f'この企画の対象本をAmazonですべて見る →</a></p>\n'
+            f'<div class="grid">\n{books}\n</div>'
+        )
+
+    if campaigns:
+        sections.append('<p class="group">ジャンル別</p>')
     for i, genre in enumerate(data["genres"]):
         books = "\n".join(render_book(b) for b in genre["items"])
         body = (
@@ -165,7 +192,11 @@ def generate_rss(data: dict) -> str:
     )
     items_xml = []
     seen: set[str] = set()
-    for genre in data["genres"]:
+    sources = [
+        {"name": c["name"], "items": c["items"]}
+        for c in data.get("campaigns") or []
+    ] + data["genres"]
+    for genre in sources:
         for b in genre["items"][:20]:
             if b["asin"] in seen:
                 continue
@@ -197,7 +228,9 @@ def main():
     DOCS.mkdir(exist_ok=True)
     (DOCS / "index.html").write_text(generate_html(data), encoding="utf-8")
     (DOCS / "rss.xml").write_text(generate_rss(data), encoding="utf-8")
-    total = sum(len(g["items"]) for g in data["genres"])
+    total = sum(len(g["items"]) for g in data["genres"]) + sum(
+        len(c["items"]) for c in data.get("campaigns") or []
+    )
     print(f"generated: docs/index.html, docs/rss.xml ({total}冊)")
 
 

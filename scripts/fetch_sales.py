@@ -25,8 +25,12 @@ from pathlib import Path
 
 TOKEN_URL = "https://api.amazon.co.jp/auth/o2/token"
 API_URL = "https://creatorsapi.amazon/catalog/v1/searchItems"
+NODES_URL = "https://creatorsapi.amazon/catalog/v1/getBrowseNodes"
 SCOPE = "creatorsapi::default"
 MARKETPLACE = "www.amazon.co.jp"
+
+# 「Kindle Events」ノード。開催中のセール企画が子ノードとしてぶら下がる
+EVENTS_NODE_ID = "204336703051"
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT / "config.json"
@@ -142,6 +146,111 @@ def search_items(
     )
     with urllib.request.urlopen(req, timeout=30) as res:
         return json.loads(res.read().decode("utf-8"))
+
+
+def get_campaign_candidates(access_token: str, partner_tag: str) -> list[dict]:
+    """Kindle Eventsノードの子から、セール企画の候補一覧を新しい順に返す。
+
+    子ノードには内部コード名(MD_ST_KU_..等)やテスト・終了済み企画も
+    混ざっているため、日本語名を持つものだけに絞る。実際に開催中か
+    どうかは呼び出し側が商品検索で確認する。
+    """
+    body = {
+        "partnerTag": partner_tag,
+        "partnerType": "Associates",
+        "marketplace": MARKETPLACE,
+        "browseNodeIds": [EVENTS_NODE_ID],
+        "resources": ["browseNodes.children"],
+    }
+    req = urllib.request.Request(
+        NODES_URL,
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+            "x-marketplace": MARKETPLACE,
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as res:
+        payload = json.loads(res.read().decode("utf-8"))
+
+    candidates = []
+    for node in (payload.get("browseNodesResult") or {}).get("browseNodes") or []:
+        for child in node.get("children") or []:
+            name = (child.get("displayName") or "").strip().strip('"').strip()
+            child_id = child.get("id")
+            if not child_id or not name:
+                continue
+            if not re.search(r"[ぁ-んァ-ヶ一-龯]", name):
+                continue  # 内部コード名(英数字のみ)を除外
+            if re.search(r"test", name, re.IGNORECASE):
+                continue
+            candidates.append({"id": child_id, "name": name})
+    # ノードIDは作成順に増えるようなので、ID降順=新しい企画順とみなす
+    candidates.sort(key=lambda c: int(c["id"]), reverse=True)
+    return candidates
+
+
+def search_with_retry(
+    auth: dict,
+    partner_tag: str,
+    *,
+    browse_node_id: str | None,
+    item_page: int,
+    sort_by: str,
+    label: str,
+) -> dict:
+    """search_itemsを429/401/ネットワークエラーに耐性を持たせて呼ぶ。
+
+    authは {"token", "id", "secret"} を持つdict。401時はtokenを再取得して
+    差し替える(呼び出し側にも新tokenが見えるようdictで持ち回る)。
+    """
+    for attempt in range(3):
+        try:
+            return search_items(
+                auth["token"],
+                partner_tag,
+                browse_node_id=browse_node_id,
+                item_page=item_page,
+                sort_by=sort_by,
+            )
+        except urllib.error.HTTPError as e:
+            if e.code == 401 and attempt < 2:
+                try:
+                    auth["token"] = get_access_token(auth["id"], auth["secret"])
+                except (urllib.error.URLError, TimeoutError, OSError):
+                    pass
+                continue
+            if e.code == 429 and attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            print(
+                f"[warn] {label}: HTTP {e.code} "
+                f"{e.read().decode('utf-8', 'replace')[:300]}",
+                file=sys.stderr,
+            )
+            return {}
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            print(f"[warn] {label}: {e}", file=sys.stderr)
+            return {}
+    return {}
+
+
+def dedupe_series(items: list[dict]) -> list[dict]:
+    """お得度順に並んだリストから、同一シリーズの巻違いを畳む。"""
+    series_seen: set[str] = set()
+    deduped = []
+    for item in items:
+        key = series_key(item["title"])
+        if is_same_series(key, series_seen):
+            continue
+        series_seen.add(key)
+        deduped.append(item)
+    return deduped
 
 
 def parse_items(
@@ -276,11 +385,71 @@ def main() -> int:
     config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
     min_saving = config.get("min_saving_percent", 20)
     pages = config.get("pages_per_genre", 3)
+    max_campaigns = config.get("max_campaigns", 6)
+    campaign_pages = config.get("campaign_pages", 2)
+    campaign_scan_limit = config.get("campaign_scan_limit", 15)
 
+    auth = {
+        "token": access_token,
+        "id": credential_id,
+        "secret": credential_secret,
+    }
+    sort_key = lambda x: (x["percent_off"] or 0) + (x["points_percent"] or 0)  # noqa: E731
+
+    # --- セール企画 (Kindle Eventsの子ノードから自動発見) ---
+    campaigns = []
+    try:
+        candidates = get_campaign_candidates(auth["token"], partner_tag)
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        print(f"[warn] 企画一覧の取得に失敗: {e}", file=sys.stderr)
+        candidates = []
+    for cand in candidates[:campaign_scan_limit]:
+        if len(campaigns) >= max_campaigns:
+            break
+        items: list[dict] = []
+        seen: set[str] = set()
+        total = None
+        for page in range(1, campaign_pages + 1):
+            res = search_with_retry(
+                auth,
+                partner_tag,
+                browse_node_id=cand["id"],
+                item_page=page,
+                sort_by="Featured",
+                label=f"企画 {cand['name']} page {page}",
+            )
+            if total is None:
+                total = (res.get("searchResult") or {}).get("totalResultCount")
+            parsed_items, _ = parse_items(res, partner_tag, min_saving)
+            for parsed in parsed_items:
+                if parsed["asin"] not in seen:
+                    seen.add(parsed["asin"])
+                    items.append(parsed)
+            time.sleep(1.2)
+            # 1ページ目でセール品がほぼ無い企画は終了済みとみなし深追いしない
+            if page == 1 and len(items) < 3:
+                break
+        items.sort(key=sort_key, reverse=True)
+        deduped = dedupe_series(items)
+        if len(deduped) >= 3:
+            campaigns.append(
+                {
+                    "name": cand["name"],
+                    "url": (
+                        f"https://www.amazon.co.jp/b?node={cand['id']}"
+                        f"&tag={partner_tag}"
+                    ),
+                    "total": total,
+                    "items": deduped[:12],
+                }
+            )
+            print(f"企画「{cand['name']}」: {len(deduped[:12])}冊 (対象約{total}冊)")
+
+    # --- ジャンル別 ---
     genres = []
     for genre in config["genres"]:
-        seen: set[str] = set()
-        items: list[dict] = []
+        seen = set()
+        items = []
         dropped = 0
         # 旧形式(browse_node_id: 単一)と新形式(browse_node_ids: 配列)の両対応
         node_ids = genre.get("browse_node_ids") or [genre.get("browse_node_id")]
@@ -290,48 +459,14 @@ def main() -> int:
             for s in SORT_ORDERS
             for p in range(1, pages + 1)
         ):
-            for attempt in range(3):
-                try:
-                    res = search_items(
-                        access_token,
-                        partner_tag,
-                        browse_node_id=node_id,
-                        item_page=page,
-                        sort_by=sort_by,
-                    )
-                    break
-                except urllib.error.HTTPError as e:
-                    if e.code == 401 and attempt < 2:
-                        # トークン切れ。再取得して再試行する。
-                        # 再取得自体の失敗でクラッシュしないよう握りつぶし、
-                        # 次のattemptの401でwarn扱いに落とす
-                        try:
-                            access_token = get_access_token(
-                                credential_id, credential_secret
-                            )
-                        except (urllib.error.URLError, TimeoutError, OSError):
-                            pass
-                        continue
-                    if e.code == 429 and attempt < 2:
-                        time.sleep(5 * (attempt + 1))
-                        continue
-                    print(
-                        f"[warn] {genre['name']} page {page}: HTTP {e.code} "
-                        f"{e.read().decode('utf-8', 'replace')[:300]}",
-                        file=sys.stderr,
-                    )
-                    res = {}
-                    break
-                except (urllib.error.URLError, TimeoutError, OSError) as e:
-                    if attempt < 2:
-                        time.sleep(5 * (attempt + 1))
-                        continue
-                    print(
-                        f"[warn] {genre['name']} page {page}: {e}",
-                        file=sys.stderr,
-                    )
-                    res = {}
-                    break
+            res = search_with_retry(
+                auth,
+                partner_tag,
+                browse_node_id=node_id,
+                item_page=page,
+                sort_by=sort_by,
+                label=f"{genre['name']} page {page}",
+            )
             parsed_items, no_discount = parse_items(res, partner_tag, min_saving)
             dropped += no_discount
             for parsed in parsed_items:
@@ -340,31 +475,22 @@ def main() -> int:
                     items.append(parsed)
             time.sleep(1.2)
 
-        # 値引き率とポイント還元率を合算した「実質お得度」で並べ替える
-        items.sort(
-            key=lambda x: (x["percent_off"] or 0) + (x["points_percent"] or 0),
-            reverse=True,
-        )
-        # 同一シリーズの巻違いは、最もお得な1冊だけ残す
-        # (ソート済みなので最初に出てきたものが最良)
-        series_seen: set[str] = set()
-        deduped = []
-        for item in items:
-            key = series_key(item["title"])
-            if is_same_series(key, series_seen):
-                continue
-            series_seen.add(key)
-            deduped.append(item)
+        # 値引き率とポイント還元率を合算した「実質お得度」で並べ替え、
+        # 同一シリーズの巻違いは最もお得な1冊だけ残す
+        items.sort(key=sort_key, reverse=True)
+        deduped = dedupe_series(items)
         genres.append({"name": genre["name"], "items": deduped})
         print(
             f"{genre['name']}: {len(deduped)}冊 "
             f"(割引不足で{dropped}冊、シリーズ重複で{len(items) - len(deduped)}冊除外)"
         )
 
-    if sum(len(g["items"]) for g in genres) == 0:
-        # 全ジャンル0冊はAPI障害・キー失効の可能性が高い。
+    if sum(len(g["items"]) for g in genres) + sum(
+        len(c["items"]) for c in campaigns
+    ) == 0:
+        # 全ジャンル・全企画0冊はAPI障害・キー失効の可能性が高い。
         # 空サイトで前回のデプロイを上書きしないよう失敗させる
-        print("[error] 全ジャンルで0冊のため中止します", file=sys.stderr)
+        print("[error] 全ジャンル・全企画で0冊のため中止します", file=sys.stderr)
         return 1
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -375,6 +501,7 @@ def main() -> int:
                     datetime.timezone.utc
                 ).isoformat(),
                 "min_saving_percent": min_saving,
+                "campaigns": campaigns,
                 "genres": genres,
             },
             ensure_ascii=False,

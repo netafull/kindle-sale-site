@@ -4,6 +4,9 @@
   "site_url": "https://netafull.github.io/kindle-sale-site/",
   "min_saving_percent": 20,
   "pages_per_genre": 5,
+  "max_campaigns": 6,
+  "campaign_pages": 2,
+  "campaign_scan_limit": 15,
   "genres": [
     { "name": "総合", "browse_node_ids": ["2275256051"] },
     {
