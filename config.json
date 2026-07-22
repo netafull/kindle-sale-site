@@ -1,12 +1,12 @@
 {
-  "site_title": "Kindleセール速報",
-  "site_description": "セール中のKindle本を1時間ごとに自動更新でお届けします",
+  "site_title": "電書ポチ読み",
+  "site_description": "AmazonのKindle本セール・ポイント還元情報を1時間ごとに自動更新でお届けします",
   "site_url": "https://netafull.github.io/kindle-sale-site/",
   "min_saving_percent": 20,
   "pages_per_genre": 5,
-  "max_campaigns": 6,
+  "max_campaigns": 12,
   "campaign_pages": 2,
-  "campaign_scan_limit": 15,
+  "campaign_scan_limit": 40,
   "genres": [
     { "name": "総合", "browse_node_ids": ["2275256051"] },
     {
