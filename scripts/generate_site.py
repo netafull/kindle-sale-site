@@ -169,7 +169,7 @@ def generate_html(data: dict) -> str:
 <body>
 <header>
 <h1><a href="./">{esc(CONFIG["site_title"])}</a></h1>
-<p>{esc(CONFIG["site_description"])} ｜ {data["min_saving_percent"]}%OFF以上 ｜ 最終更新: {updated}</p>
+<p>{esc(CONFIG["site_description"])} ｜ 割引率とポイント還元率の合計が{data["min_saving_percent"]}%以上の本を掲載 ｜ 最終更新: {updated}</p>
 </header>
 <main>
 {chr(10).join(sections)}
