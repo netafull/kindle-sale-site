@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Amazon PA-API v5 (Creators API) からセール中のKindle本を取得して data/sales.json に保存する。
+"""Amazon Creators API からセール中のKindle本を取得して data/sales.json に保存する。
+
+2026年、Amazonは旧PA-API v5 (AWS Signature V4認証) を廃止し、
+OAuth2認証のCreators APIに全面移行した。認証情報バージョン3.3
+(Far East: JP/IN/AU) 向けのLwA(Login with Amazon)フローを使う。
 
 必要な環境変数:
-  PAAPI_ACCESS_KEY  : PA-APIのアクセスキー
-  PAAPI_SECRET_KEY  : PA-APIのシークレットキー
-  PAAPI_PARTNER_TAG : アソシエイトタグ (例: xxxx-22)
+  CREATORSAPI_CREDENTIAL_ID     : Creators APIの認証情報ID
+  CREATORSAPI_CREDENTIAL_SECRET : Creators APIの認証情報シークレット
+  CREATORSAPI_PARTNER_TAG       : アソシエイトタグ (例: xxxx-22)
 """
 
 from __future__ import annotations
 
 import datetime
-import hashlib
-import hmac
 import json
 import os
 import sys
@@ -20,77 +22,54 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-HOST = "webservices.amazon.co.jp"
-REGION = "us-west-2"
-SERVICE = "ProductAdvertisingAPI"
-URI_PATH = "/paapi5/searchitems"
-TARGET = "com.amazon.paapi5.v1.ProductAdvertisingAPIv1.SearchItems"
+TOKEN_URL = "https://api.amazon.co.jp/auth/o2/token"
+API_URL = "https://creatorsapi.amazon/catalog/v1/searchItems"
+SCOPE = "creatorsapi::default"
+MARKETPLACE = "www.amazon.co.jp"
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT / "config.json"
 OUTPUT_PATH = ROOT / "data" / "sales.json"
 
 RESOURCES = [
-    "ItemInfo.Title",
-    "ItemInfo.ByLineInfo",
-    "Images.Primary.Medium",
-    "Offers.Listings.Price",
-    "Offers.Listings.SavingBasis",
-    "Offers.Listings.LoyaltyPoints",
+    "itemInfo.title",
+    "itemInfo.byLineInfo",
+    "images.primary.medium",
+    "offersV2.listings.price",
+    "offersV2.listings.loyaltyPoints",
 ]
 
 
-def sign(key: bytes, msg: str) -> bytes:
-    return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
+def pick(d: dict, *keys):
+    """複数の想定キー名から最初に見つかった値を返す(レスポンスの大文字小文字ゆれ対策)。"""
+    for key in keys:
+        if key in d:
+            return d[key]
+    return None
 
 
-def build_headers(payload: str, access_key: str, secret_key: str) -> dict:
-    """AWS Signature Version 4 でリクエストヘッダーを作る。"""
-    now = datetime.datetime.now(datetime.timezone.utc)
-    amz_date = now.strftime("%Y%m%dT%H%M%SZ")
-    date_stamp = now.strftime("%Y%m%d")
-
-    canonical_headers = (
-        f"content-encoding:amz-1.0\n"
-        f"host:{HOST}\n"
-        f"x-amz-date:{amz_date}\n"
-        f"x-amz-target:{TARGET}\n"
+def get_access_token(credential_id: str, credential_secret: str) -> str:
+    body = json.dumps(
+        {
+            "grant_type": "client_credentials",
+            "client_id": credential_id,
+            "client_secret": credential_secret,
+            "scope": SCOPE,
+        }
     )
-    signed_headers = "content-encoding;host;x-amz-date;x-amz-target"
-    payload_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-    canonical_request = (
-        f"POST\n{URI_PATH}\n\n{canonical_headers}\n{signed_headers}\n{payload_hash}"
+    req = urllib.request.Request(
+        TOKEN_URL,
+        data=body.encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
     )
-
-    scope = f"{date_stamp}/{REGION}/{SERVICE}/aws4_request"
-    string_to_sign = (
-        f"AWS4-HMAC-SHA256\n{amz_date}\n{scope}\n"
-        + hashlib.sha256(canonical_request.encode("utf-8")).hexdigest()
-    )
-
-    k_date = sign(("AWS4" + secret_key).encode("utf-8"), date_stamp)
-    k_region = sign(k_date, REGION)
-    k_service = sign(k_region, SERVICE)
-    k_signing = sign(k_service, "aws4_request")
-    signature = hmac.new(
-        k_signing, string_to_sign.encode("utf-8"), hashlib.sha256
-    ).hexdigest()
-
-    return {
-        "Content-Encoding": "amz-1.0",
-        "Content-Type": "application/json; charset=utf-8",
-        "X-Amz-Date": amz_date,
-        "X-Amz-Target": TARGET,
-        "Authorization": (
-            f"AWS4-HMAC-SHA256 Credential={access_key}/{scope}, "
-            f"SignedHeaders={signed_headers}, Signature={signature}"
-        ),
-    }
+    with urllib.request.urlopen(req, timeout=30) as res:
+        payload = json.loads(res.read().decode("utf-8"))
+    return payload["access_token"]
 
 
 def search_items(
-    access_key: str,
-    secret_key: str,
+    access_token: str,
     partner_tag: str,
     *,
     browse_node_id: str | None,
@@ -98,26 +77,27 @@ def search_items(
     item_page: int,
 ) -> dict:
     body = {
-        "PartnerTag": partner_tag,
-        "PartnerType": "Associates",
-        "Marketplace": "www.amazon.co.jp",
-        "SearchIndex": "KindleStore",
-        "MinSavingPercent": min_saving_percent,
-        "ItemPage": item_page,
-        "ItemCount": 10,
-        "SortBy": "Featured",
-        "Resources": RESOURCES,
+        "partnerTag": partner_tag,
+        "partnerType": "Associates",
+        "marketplace": MARKETPLACE,
+        "searchIndex": "KindleStore",
+        "minSavingPercent": min_saving_percent,
+        "itemPage": item_page,
+        "itemCount": 10,
+        "sortBy": "Featured",
+        "resources": RESOURCES,
     }
     if browse_node_id:
-        body["BrowseNodeId"] = browse_node_id
+        body["browseNodeId"] = browse_node_id
 
     payload = json.dumps(body)
-    headers = build_headers(payload, access_key, secret_key)
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+        "x-marketplace": MARKETPLACE,
+    }
     req = urllib.request.Request(
-        f"https://{HOST}{URI_PATH}",
-        data=payload.encode("utf-8"),
-        headers=headers,
-        method="POST",
+        API_URL, data=payload.encode("utf-8"), headers=headers, method="POST"
     )
     with urllib.request.urlopen(req, timeout=30) as res:
         return json.loads(res.read().decode("utf-8"))
@@ -125,41 +105,58 @@ def search_items(
 
 def parse_items(response: dict, partner_tag: str) -> list[dict]:
     items = []
-    for item in response.get("SearchResult", {}).get("Items", []):
-        asin = item.get("ASIN")
-        title = (
-            item.get("ItemInfo", {}).get("Title", {}).get("DisplayValue")
-        )
-        listings = item.get("Offers", {}).get("Listings", [])
+    search_result = pick(response, "searchResult", "SearchResult") or {}
+    for item in pick(search_result, "items", "Items") or []:
+        asin = pick(item, "asin", "ASIN")
+        item_info = pick(item, "itemInfo", "ItemInfo") or {}
+        title = pick(pick(item_info, "title", "Title") or {}, "displayValue", "DisplayValue")
+        offers = pick(item, "offersV2", "OffersV2") or {}
+        listings = pick(offers, "listings", "Listings") or []
         if not asin or not title or not listings:
             continue
+
         listing = listings[0]
-        price = listing.get("Price", {}).get("Amount")
-        basis = listing.get("SavingBasis", {}).get("Amount")
+        price_block = pick(listing, "price", "Price") or {}
+        money = pick(price_block, "money", "Money") or {}
+        price = pick(money, "amount", "Amount")
         if price is None:
             continue
-        # PA-APIのAmountは浮動小数点数(例: 499.0)で返る。円は整数なので丸める
+        # 金額は浮動小数点数(例: 499.0)で返る。円は整数なので丸める
         price = int(round(price))
+
+        basis_block = pick(price_block, "savingBasis", "SavingBasis") or {}
+        basis_money = pick(basis_block, "money", "Money") or {}
+        basis = pick(basis_money, "amount", "Amount")
         basis = int(round(basis)) if basis is not None else None
-        percent_off = None
-        if basis and basis > price:
+
+        savings = pick(price_block, "savings", "Savings") or {}
+        percent_off = pick(savings, "percentage", "Percentage")
+        if percent_off is None and basis and basis > price:
             percent_off = round((basis - price) / basis * 100)
 
-        loyalty = listing.get("LoyaltyPoints") or {}
-        points = loyalty.get("Points")
-        # LoyaltyPointsにはポイント数しか含まれないため、還元率は価格から算出する
+        loyalty = pick(listing, "loyaltyPoints", "LoyaltyPoints") or {}
+        points = pick(loyalty, "points", "Points")
+        # ポイント数のみが返るため、還元率は価格から自前で算出する
         points_percent = (
             round(points / price * 100) if points and price else None
         )
 
-        contributors = (
-            item.get("ItemInfo", {})
-            .get("ByLineInfo", {})
-            .get("Contributors", [])
-        )
+        contributors = pick(
+            pick(item_info, "byLineInfo", "ByLineInfo") or {},
+            "contributors",
+            "Contributors",
+        ) or []
         author = ", ".join(
-            c["Name"] for c in contributors if c.get("Name")
+            n for c in contributors if (n := pick(c, "name", "Name"))
         ) or None
+
+        images = pick(item, "images", "Images") or {}
+        medium = pick(pick(images, "primary", "Primary") or {}, "medium", "Medium") or {}
+        image = pick(medium, "url", "URL")
+
+        url = pick(item, "detailPageURL", "DetailPageURL") or (
+            f"https://www.amazon.co.jp/dp/{asin}?tag={partner_tag}"
+        )
 
         items.append(
             {
@@ -171,24 +168,31 @@ def parse_items(response: dict, partner_tag: str) -> list[dict]:
                 "percent_off": percent_off,
                 "points": points,
                 "points_percent": points_percent,
-                "image": item.get("Images", {})
-                .get("Primary", {})
-                .get("Medium", {})
-                .get("URL"),
-                "url": f"https://www.amazon.co.jp/dp/{asin}?tag={partner_tag}",
+                "image": image,
+                "url": url,
             }
         )
     return items
 
 
 def main() -> int:
-    access_key = os.environ.get("PAAPI_ACCESS_KEY")
-    secret_key = os.environ.get("PAAPI_SECRET_KEY")
-    partner_tag = os.environ.get("PAAPI_PARTNER_TAG")
-    if not all([access_key, secret_key, partner_tag]):
+    credential_id = os.environ.get("CREATORSAPI_CREDENTIAL_ID")
+    credential_secret = os.environ.get("CREATORSAPI_CREDENTIAL_SECRET")
+    partner_tag = os.environ.get("CREATORSAPI_PARTNER_TAG")
+    if not all([credential_id, credential_secret, partner_tag]):
         print(
-            "環境変数 PAAPI_ACCESS_KEY / PAAPI_SECRET_KEY / PAAPI_PARTNER_TAG "
-            "を設定してください",
+            "環境変数 CREATORSAPI_CREDENTIAL_ID / CREATORSAPI_CREDENTIAL_SECRET / "
+            "CREATORSAPI_PARTNER_TAG を設定してください",
+            file=sys.stderr,
+        )
+        return 1
+
+    try:
+        access_token = get_access_token(credential_id, credential_secret)
+    except urllib.error.HTTPError as e:
+        print(
+            f"[error] トークン取得に失敗: HTTP {e.code} "
+            f"{e.read().decode('utf-8', 'replace')[:300]}",
             file=sys.stderr,
         )
         return 1
@@ -205,8 +209,7 @@ def main() -> int:
             for attempt in range(3):
                 try:
                     res = search_items(
-                        access_key,
-                        secret_key,
+                        access_token,
                         partner_tag,
                         browse_node_id=genre.get("browse_node_id"),
                         min_saving_percent=min_saving,
@@ -214,6 +217,10 @@ def main() -> int:
                     )
                     break
                 except urllib.error.HTTPError as e:
+                    if e.code == 401 and attempt < 2:
+                        # トークン切れ。再取得して1回だけ再試行する
+                        access_token = get_access_token(credential_id, credential_secret)
+                        continue
                     if e.code == 429 and attempt < 2:
                         time.sleep(5 * (attempt + 1))
                         continue
@@ -238,7 +245,7 @@ def main() -> int:
                 if parsed["asin"] not in seen:
                     seen.add(parsed["asin"])
                     items.append(parsed)
-            time.sleep(1.2)  # PA-APIの基本レートは1リクエスト/秒
+            time.sleep(1.2)
 
         # 値引き率とポイント還元率を合算した「実質お得度」で並べ替える
         items.sort(

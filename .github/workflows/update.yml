@@ -1,7 +1,7 @@
 name: Update Kindle sale site
 
 on:
-  # PAAPI_*のSecretsを登録するまで自動実行を止めておく(失敗メール防止)
+  # CREATORSAPI_*のSecretsを登録するまで自動実行を止めておく(失敗メール防止)
   # 登録が終わったらこのコメントを外す
   # schedule:
   #   - cron: "7 * * * *"  # 毎時7分に実行 (UTC)
@@ -30,11 +30,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Fetch sale data from PA-API
+      - name: Fetch sale data from Creators API
         env:
-          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
-          PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
-          PAAPI_PARTNER_TAG: ${{ secrets.PAAPI_PARTNER_TAG }}
+          CREATORSAPI_CREDENTIAL_ID: ${{ secrets.CREATORSAPI_CREDENTIAL_ID }}
+          CREATORSAPI_CREDENTIAL_SECRET: ${{ secrets.CREATORSAPI_CREDENTIAL_SECRET }}
+          CREATORSAPI_PARTNER_TAG: ${{ secrets.CREATORSAPI_PARTNER_TAG }}
         run: python scripts/fetch_sales.py
 
       - name: Generate site
