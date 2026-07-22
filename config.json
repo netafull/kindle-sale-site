@@ -6,7 +6,7 @@
   "min_saving_percent": 20,
   "pages_per_genre": 5,
   "max_campaigns": 12,
-  "campaign_pages": 2,
+  "campaign_max_pages": 5,
   "campaign_scan_limit": 40,
   "genres": [
     { "name": "総合", "browse_node_ids": ["2275256051"] },

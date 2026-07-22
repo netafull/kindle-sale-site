@@ -390,7 +390,7 @@ def main() -> int:
     min_saving = config.get("min_saving_percent", 20)
     pages = config.get("pages_per_genre", 3)
     max_campaigns = config.get("max_campaigns", 6)
-    campaign_pages = config.get("campaign_pages", 2)
+    campaign_max_pages = config.get("campaign_max_pages", 5)
     campaign_scan_limit = config.get("campaign_scan_limit", 15)
 
     auth = {
@@ -413,7 +413,7 @@ def main() -> int:
         items: list[dict] = []
         seen: set[str] = set()
         total = None
-        for page in range(1, campaign_pages + 1):
+        for page in range(1, campaign_max_pages + 1):
             res = search_with_retry(
                 auth,
                 partner_tag,
@@ -432,6 +432,9 @@ def main() -> int:
             time.sleep(1.2)
             # 1ページ目でセール品がほぼ無い企画は終了済みとみなし深追いしない
             if page == 1 and len(items) < 3:
+                break
+            # 掲載枠(12冊)+シリーズ重複で削られる分が集まったら打ち切る
+            if len(items) >= 15:
                 break
         items.sort(key=sort_key, reverse=True)
         deduped = dedupe_series(items)
