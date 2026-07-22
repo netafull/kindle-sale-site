@@ -34,6 +34,7 @@ OUTPUT_PATH = ROOT / "data" / "sales.json"
 RESOURCES = [
     "itemInfo.title",
     "itemInfo.byLineInfo",
+    "itemInfo.classifications",
     "images.primary.medium",
     "offersV2.listings.price",
     "offersV2.listings.loyaltyPoints",
@@ -113,6 +114,14 @@ def parse_items(response: dict, partner_tag: str) -> list[dict]:
         offers = pick(item, "offersV2", "OffersV2") or {}
         listings = pick(offers, "listings", "Listings") or []
         if not asin or not title or not listings:
+            continue
+
+        # searchIndex=KindleStoreだけでは物理商品が紛れ込むため、
+        # binding(商品形態)がKindleのものだけに絞り込む
+        classifications = pick(item_info, "classifications", "Classifications") or {}
+        binding = pick(classifications, "binding", "Binding") or {}
+        binding_value = pick(binding, "displayValue", "DisplayValue")
+        if binding_value != "Kindle":
             continue
 
         listing = listings[0]
