@@ -161,6 +161,10 @@ def generate_html(data: dict) -> str:
     page_title = (
         f'{CONFIG["site_title"]}｜{tagline}' if tagline else CONFIG["site_title"]
     )
+    gsv = CONFIG.get("google_site_verification", "")
+    gsv_tag = (
+        f'<meta name="google-site-verification" content="{esc(gsv)}">' if gsv else ""
+    )
 
     # 構造化データ: サイト情報と開催中セール企画の一覧
     json_ld = json.dumps(
@@ -198,6 +202,7 @@ def generate_html(data: dict) -> str:
 <title>{esc(page_title)}</title>
 <meta name="description" content="{esc(CONFIG["site_description"])}">
 <link rel="canonical" href="{esc(site_url)}">
+{gsv_tag}
 <meta property="og:type" content="website">
 <meta property="og:title" content="{esc(page_title)}">
 <meta property="og:description" content="{esc(CONFIG["site_description"])}">
