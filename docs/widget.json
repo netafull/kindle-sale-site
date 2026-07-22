@@ -1,0 +1,58 @@
+{
+  "updated": "2026-07-22T15:19:05.838391+00:00",
+  "site_url": "https://netafull.github.io/kindle-sale-site/",
+  "site_title": "電書ポチ読み",
+  "campaign_count": 12,
+  "books": [
+    {
+      "title": "無能な継母ですが、家族の溺愛が止まりません！ 1 (ＦＬＯＳ　ＣＯＭＩＣ)",
+      "price": 99,
+      "list_price": 1320,
+      "percent_off": 93,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51yWyJEtzSL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0DQKJLDHB?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "よくある令嬢転生だと思ったのに　１ (ＦＬＯＳ　ＣＯＭＩＣ)",
+      "price": 99,
+      "list_price": 1320,
+      "percent_off": 93,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51kEfLCci1L._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0F5GPV3ZS?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "この結婚はどうせうまくいかない　１ (ＦＬＯＳ　ＣＯＭＩＣ)",
+      "price": 99,
+      "list_price": 1320,
+      "percent_off": 93,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51FyVnTBUiL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0FDVGDTH7?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "宇宙兄弟（１） (モーニングコミックス)",
+      "price": 100,
+      "list_price": 891,
+      "percent_off": 89,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51u9INmWNHL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B009KWUFNG?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "辺境モブ貴族のウチに嫁いできた悪役令嬢が、めちゃくちゃできる良い嫁なんだが？ 1 (ドラゴンコミックスエイジ)",
+      "price": 99,
+      "list_price": 924,
+      "percent_off": 89,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51dq1NLYclL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0DXYRDKZ3?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    }
+  ]
+}

@@ -79,6 +79,27 @@ python3 scripts/generate_site.py
 open docs/index.html
 ```
 
+## ブログ埋め込みウィジェット
+
+外部ブログの記事末尾などに、以下のスニペットを貼り付けると、開催中のセール本トップ数冊が自動更新で表示されます(`docs/widget.json` を定期的にfetchするだけなので、記事側の再編集は不要です)。
+
+```html
+<div id="densho-widget"><a href="https://netafull.github.io/kindle-sale-site/">Kindle本セール情報「電書ポチ読み」</a></div>
+<script src="https://netafull.github.io/kindle-sale-site/widget.js" async></script>
+```
+
+- `id="densho-widget"` の要素がJSの描画先です。JS読み込み前・失敗時は中のリンクがそのまま表示されるフォールバックになります
+- 表示冊数は `data-count` 属性(1〜5、省略時3)で変更できます
+
+```html
+<div id="densho-widget" data-count="5">
+  <a href="https://netafull.github.io/kindle-sale-site/">Kindle本セール情報「電書ポチ読み」</a>
+</div>
+<script src="https://netafull.github.io/kindle-sale-site/widget.js" async></script>
+```
+
+動作確認用のテストページは `docs/widget-test.html` (`python3 scripts/generate_site.py` 実行後に `open docs/widget-test.html` で確認可能)。
+
 ## 注意事項
 
 - Creators APIには「30日間APIから売上が発生しないとアクセス停止」等、旧PA-API同様の利用条件が引き継がれています

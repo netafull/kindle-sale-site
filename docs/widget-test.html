@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ウィジェット埋め込みテスト｜電書ポチ読み</title>
+<style>
+  body {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.8;
+    color: #1a1a1a;
+    background: #fafaf7;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #14151a; color: #e8e8e6; }
+  }
+  h1 { font-size: 22px; margin-bottom: 16px; }
+  p { margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<h1>今日のおすすめ本レビュー(ダミー記事)</h1>
+
+<p>
+このページはブログ記事を模した、外部埋め込みウィジェットの動作確認用テストページです。
+本文はダミーです。実際のブログ記事では、この位置に書評や感想などが入ります。
+</p>
+
+<p>
+吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。
+何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。
+吾輩はここで始めて人間というものを見た。
+</p>
+
+<p>
+記事の本文がひとしきり続いたあと、末尾に「電書ポチ読み」の自動更新ウィジェットを
+埋め込むと、以下のように現在セール中のKindle本が自動表示されます。
+</p>
+
+<!-- ここから埋め込みスニペット(相対パスでローカル検証用) -->
+<div id="densho-widget"><a href="https://netafull.github.io/kindle-sale-site/">Kindle本セール情報「電書ポチ読み」</a></div>
+<script src="./widget.js" async></script>
+<!-- ここまで -->
+
+<p>
+ウィジェットの上下にはさらに文章が続く想定です。以上、テストページでした。
+</p>
+
+</body>
+</html>
