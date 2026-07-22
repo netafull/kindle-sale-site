@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var FALLBACK_SITE_URL = "https://netafull.github.io/kindle-sale-site/";
+  var FALLBACK_SITE_URL = "https://book.netaful.jp/";
 
   // currentScriptはスクリプト評価中しか参照できない。init()はDOMContentLoaded
   // 後に走ることがあるため、ここで(評価時に)一度だけ取得しておく
