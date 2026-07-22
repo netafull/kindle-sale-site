@@ -34,12 +34,6 @@ header { padding: 28px 16px 12px; max-width: 960px; margin: 0 auto; }
 header h1 { font-size: 24px; }
 header h1 a { color: var(--text); text-decoration: none; }
 header p { color: var(--muted); font-size: 13px; margin-top: 4px; }
-nav { max-width: 960px; margin: 12px auto 0; padding: 0 16px;
-  display: flex; gap: 8px; flex-wrap: wrap; }
-nav a { font-size: 13px; padding: 5px 12px; border: 1px solid var(--line);
-  border-radius: 999px; color: var(--text); text-decoration: none;
-  background: var(--card); }
-nav a:hover { border-color: var(--accent); color: var(--accent); }
 main { max-width: 960px; margin: 0 auto; padding: 8px 16px 48px; }
 h2 { font-size: 18px; margin: 0; padding-left: 10px;
   border-left: 4px solid var(--accent); display: inline; }
@@ -130,14 +124,6 @@ def generate_html(data: dict) -> str:
     campaigns = data.get("campaigns") or []
     others = data.get("others") or []
 
-    nav_links = [
-        f'<a href="#c{i}">🔥 {esc(c["name"][:12])}</a>'
-        for i, c in enumerate(campaigns)
-    ]
-    if others:
-        nav_links.append('<a href="#others">その他</a>')
-    nav = "\n".join(nav_links)
-
     def fmt_since(since: str | None) -> str:
         if not since:
             return ""
@@ -185,7 +171,6 @@ def generate_html(data: dict) -> str:
 <h1><a href="./">{esc(CONFIG["site_title"])}</a></h1>
 <p>{esc(CONFIG["site_description"])} ｜ {data["min_saving_percent"]}%OFF以上 ｜ 最終更新: {updated}</p>
 </header>
-<nav>{nav}</nav>
 <main>
 {chr(10).join(sections)}
 </main>
