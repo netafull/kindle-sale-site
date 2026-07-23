@@ -1,6 +1,6 @@
-# 電書ポチ読み (Kindle本セール情報サイト)
+# 電書ポチッ (Kindle本セール情報サイト)
 
-サイト名にAmazon商標(Kindle等)を使うことはアソシエイト規約で禁止されているため、サイト名は「電書ポチ読み」。説明文中でKindleに言及するのは問題ない。
+サイト名にAmazon商標(Kindle等)を使うことはアソシエイト規約で禁止されているため、サイト名は「電書ポチッ」。説明文中でKindleに言及するのは問題ない。
 
 セール中のKindle本をAmazon Creators API から取得し、静的サイトとして自動公開するツールです。GitHub Actionsで1時間ごとに自動更新されます。
 
@@ -84,7 +84,7 @@ open docs/index.html
 外部ブログの記事末尾などに、以下のスニペットを貼り付けると、開催中のセール本トップ数冊が自動更新で表示されます(`docs/widget.json` を定期的にfetchするだけなので、記事側の再編集は不要です)。
 
 ```html
-<div id="densho-widget"><a href="https://book.netaful.jp/">Kindle本セール情報「電書ポチ読み」</a></div>
+<div id="densho-widget"><a href="https://book.netaful.jp/">Kindle本セール情報「電書ポチッ」</a></div>
 <script src="https://book.netaful.jp/widget.js" async></script>
 ```
 
@@ -93,7 +93,7 @@ open docs/index.html
 
 ```html
 <div id="densho-widget" data-count="5">
-  <a href="https://book.netaful.jp/">Kindle本セール情報「電書ポチ読み」</a>
+  <a href="https://book.netaful.jp/">Kindle本セール情報「電書ポチッ」</a>
 </div>
 <script src="https://book.netaful.jp/widget.js" async></script>
 ```
