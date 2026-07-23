@@ -413,11 +413,20 @@ WIDGET_JS = r"""(function () {
     return row;
   }
 
+  function sampleRandom(arr, n) {
+    var copy = arr.slice();
+    for (var i = copy.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
+    }
+    return copy.slice(0, n);
+  }
+
   function render(container, data) {
     var siteUrl = data.site_url || FALLBACK_SITE_URL;
     var count = parseInt(container.getAttribute("data-count"), 10);
     if (!count || count < 1 || count > 5) count = 3;
-    var books = (data.books || []).slice(0, count);
+    var books = sampleRandom(data.books || [], count);
     if (books.length === 0) return;
 
     injectStyle();
@@ -502,6 +511,8 @@ def generate_widget_data(data: dict) -> dict:
 
     deduped.sort(key=savings, reverse=True)
 
+    pool_size = CONFIG.get("widget_pool_size", 20)
+
     books = [
         {
             "title": b.get("title"),
@@ -513,7 +524,7 @@ def generate_widget_data(data: dict) -> dict:
             "image": b.get("image"),
             "url": b.get("url"),
         }
-        for b in deduped[:5]
+        for b in deduped[:pool_size]
     ]
 
     return {
