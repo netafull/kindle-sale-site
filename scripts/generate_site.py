@@ -72,6 +72,10 @@ details > .grid, details > .empty { margin-top: 12px; }
   letter-spacing: 0.08em; }
 .cmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0 19px; }
 .cmeta a { color: var(--accent); }
+.cmeta-link { display: inline-block; margin: 8px 0 0 19px; padding: 6px 14px;
+  background: var(--accent); color: #fff; border-radius: 999px;
+  font-size: 13px; font-weight: 600; text-decoration: none; }
+.cmeta-link:hover { opacity: 0.85; }
 footer { max-width: 960px; margin: 0 auto; padding: 16px;
   color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
 .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
@@ -139,10 +143,10 @@ def generate_html(data: dict) -> str:
         sections.append(
             f'<details open id="c{i}">\n'
             f'<summary><h2>🔥 {esc(c["name"])}</h2></summary>\n'
-            f'<p class="cmeta">{total}{fmt_since(c.get("since"))} ・ '
-            f'<a href="{esc(c["url"])}" '
+            f'<p class="cmeta">{total}{fmt_since(c.get("since"))}</p>\n'
+            f'<a class="cmeta-link" href="{esc(c["url"])}" '
             f'target="_blank" rel="noopener sponsored">'
-            f'この企画の対象本をAmazonですべて見る →</a></p>\n'
+            f'🛒 このセールの対象本をAmazonですべて見る</a>\n'
             f'<div class="grid">\n{books}\n</div>\n'
             f'</details>'
         )
@@ -354,8 +358,8 @@ WIDGET_JS = r"""(function () {
       ".dpy-off{display:inline-block;font-size:10px;font-weight:700;color:#fff;background:#e47911;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px;}",
       ".dpy-off.dpy-hi{background:#d0342c;}",
       ".dpy-pt{font-size:10px;color:#0a7d3c;font-weight:600;margin-top:2px;}",
-      ".dpy-foot{display:block;padding:8px 14px;font-size:12px;color:#6b6b6b;text-decoration:none;background:#faf6ef;border-top:1px solid #e5e2dc;}",
-      ".dpy-foot:hover{color:#e47911;}",
+      ".dpy-foot{display:block;padding:10px 14px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#e47911;text-align:center;}",
+      ".dpy-foot:hover{opacity:0.85;}",
       '@media (prefers-color-scheme: dark) {',
       ".dpy-box{border-color:#2c2e36;background:#1e2027;color:#e8e8e6;}",
       ".dpy-head{background:#20222a;color:#e8e8e6;border-bottom-color:#2c2e36;}",
@@ -364,7 +368,6 @@ WIDGET_JS = r"""(function () {
       ".dpy-img,.dpy-ph{background:#2c2e36;}",
       ".dpy-was{color:#9a9a96;}",
       ".dpy-pt{color:#4fd689;}",
-      ".dpy-foot{background:#20222a;color:#9a9a96;border-top-color:#2c2e36;}",
       "}",
     ].join("\n");
     document.head.appendChild(style);
@@ -437,7 +440,7 @@ WIDGET_JS = r"""(function () {
     var campaignCount = data.campaign_count || 0;
     var foot = el("a", {
       className: "dpy-foot",
-      text: "開催中のセール企画" + campaignCount + "件をすべて見る →",
+      text: "🛒 開催中のセール" + campaignCount + "件をすべて見る",
       attrs: { href: siteUrl, target: "_blank", rel: "noopener" },
     });
     box.appendChild(foot);
