@@ -165,6 +165,18 @@ def generate_html(data: dict) -> str:
     gsv_tag = (
         f'<meta name="google-site-verification" content="{esc(gsv)}">' if gsv else ""
     )
+    ga_id = CONFIG.get("ga_measurement_id", "")
+    ga_tag = (
+        f"""<script async src="https://www.googletagmanager.com/gtag/js?id={esc(ga_id)}"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){{dataLayer.push(arguments);}}
+gtag('js', new Date());
+gtag('config', '{esc(ga_id)}');
+</script>"""
+        if ga_id
+        else ""
+    )
 
     # 構造化データ: サイト情報と開催中セール企画の一覧
     json_ld = json.dumps(
@@ -203,6 +215,7 @@ def generate_html(data: dict) -> str:
 <meta name="description" content="{esc(CONFIG["site_description"])}">
 <link rel="canonical" href="{esc(site_url)}">
 {gsv_tag}
+{ga_tag}
 <meta property="og:type" content="website">
 <meta property="og:title" content="{esc(page_title)}">
 <meta property="og:description" content="{esc(CONFIG["site_description"])}">
@@ -225,6 +238,7 @@ def generate_html(data: dict) -> str:
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
 Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
+当サイトはアクセス解析のためGoogle Analyticsを利用しています(データは匿名で収集され、Googleに送信されます)。
 ｜ <a href="rss.xml" style="color:inherit">RSS</a>
 </footer>
 </body>
