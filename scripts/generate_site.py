@@ -51,6 +51,9 @@ details > .grid, details > .empty { margin-top: 12px; }
   border: 1px solid var(--line); border-radius: 10px; padding: 12px;
   text-decoration: none; color: var(--text); }
 .book:hover { border-color: var(--accent); }
+/* flexアイテムはデフォルトでmin-width:autoのため、長い英数字が
+   続くタイトルがあるとカード枠をはみ出す。0にして縮小を許可する */
+.book > div { min-width: 0; }
 .book img { width: 60px; height: 86px; object-fit: cover; border-radius: 4px;
   flex-shrink: 0; background: var(--line); }
 .book .t { font-size: 14px; font-weight: 600; display: -webkit-box;
