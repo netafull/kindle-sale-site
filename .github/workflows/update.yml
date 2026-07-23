@@ -2,7 +2,10 @@ name: Update Kindle sale site
 
 on:
   schedule:
-    - cron: "7 * * * *"  # 毎時7分に実行 (UTC)
+    # GitHub Actionsのスケジューラーは高負荷時に発火をスキップすることが
+    # あるため、30分おきの2本立てにして片方が飛んでも拾えるようにする
+    - cron: "7 * * * *"   # 毎時7分に実行 (UTC)
+    - cron: "37 * * * *"  # 毎時37分に実行 (UTC)
   workflow_dispatch:
 
 permissions:
