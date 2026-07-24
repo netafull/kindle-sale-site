@@ -39,6 +39,9 @@ OUTPUT_PATH = ROOT / "data" / "sales.json"
 # 企画セールでは常に空)ため、「いつから掲載しているか」を自前で記録する。
 # CIがこのファイルをコミットして毎時実行をまたいで永続化する
 STATE_PATH = ROOT / "data" / "campaign_state.json"
+# 検出されなくなった企画の状態を保持する日数。検出条件を一時的に
+# 満たさなくなっただけで初検出日がリセットされるのを防ぐ猶予期間
+STATE_GRACE_DAYS = 14
 
 RESOURCES = [
     "itemInfo.title",
@@ -475,14 +478,39 @@ def main() -> int:
             "全企画の初検出日がリセットされます",
             file=sys.stderr,
         )
-    today = datetime.datetime.now(
+    today_dt = datetime.datetime.now(
         datetime.timezone(datetime.timedelta(hours=9))
-    ).strftime("%Y-%m-%d")
+    ).date()
+    today = today_dt.isoformat()
     new_state = {}
     for c in campaigns:
         first_seen = (state.get(c["node_id"]) or {}).get("first_seen") or today
         c["since"] = first_seen
-        new_state[c["node_id"]] = {"first_seen": first_seen, "name": c["name"]}
+        new_state[c["node_id"]] = {
+            "first_seen": first_seen,
+            "last_seen": today,
+            "name": c["name"],
+        }
+
+    # 今回検出されなかった企画も猶予期間内は状態を保持する。
+    # 開催中でも掲載条件(1ページ目にセール品3冊以上)を一時的に満たさず
+    # 検出から外れることがあり、即座に削除すると復活時に掲載開始日が
+    # 今日にリセットされてしまう
+    kept = 0
+    for node_id, entry in state.items():
+        if node_id in new_state:
+            continue
+        last_seen = entry.get("last_seen") or entry.get("first_seen")
+        try:
+            elapsed = (today_dt - datetime.date.fromisoformat(last_seen)).days
+        except (TypeError, ValueError):
+            continue  # 日付が壊れているエントリは破棄する
+        if elapsed <= STATE_GRACE_DAYS:
+            new_state[node_id] = entry
+            kept += 1
+    if kept:
+        print(f"(一時的に検出されなかった{kept}企画は掲載開始日を保持)")
+
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(
         json.dumps(new_state, ensure_ascii=False, indent=2), encoding="utf-8"
