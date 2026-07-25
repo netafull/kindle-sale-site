@@ -3,6 +3,18 @@
   "site_tagline": "Kindle本セール・ポイント還元まとめ",
   "site_description": "AmazonのKindle本セール・ポイント還元情報を1時間ごとに自動更新でお届けします",
   "site_url": "https://book.netaful.jp/",
+  "related_sites": [
+    {
+      "name": "電家ポチ",
+      "desc": "ガジェット・家電セール",
+      "url": "https://kaden.netaful.jp/"
+    },
+    {
+      "name": "ネタフル",
+      "desc": "運営ブログ",
+      "url": "https://netafull.net/"
+    }
+  ],
   "google_site_verification": "Deuj6dIeYsxQGBLTl03khUFruI5LD6v3URc7yACJrko",
   "ga_measurement_id": "G-5TTE9WZ8P5",
   "min_saving_percent": 20,
@@ -12,7 +24,12 @@
   "campaign_max_pages": 5,
   "campaign_scan_limit": 40,
   "genres": [
-    { "name": "総合", "browse_node_ids": ["2275256051"] },
+    {
+      "name": "総合",
+      "browse_node_ids": [
+        "2275256051"
+      ]
+    },
     {
       "name": "マンガ",
       "browse_node_ids": [
@@ -23,7 +40,17 @@
         "2430737051"
       ]
     },
-    { "name": "ビジネス・経済", "browse_node_ids": ["2291905051"] },
-    { "name": "文学・評論", "browse_node_ids": ["2292699051"] }
+    {
+      "name": "ビジネス・経済",
+      "browse_node_ids": [
+        "2291905051"
+      ]
+    },
+    {
+      "name": "文学・評論",
+      "browse_node_ids": [
+        "2292699051"
+      ]
+    }
   ]
 }
