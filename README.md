@@ -67,6 +67,19 @@ Actions タブ →「Update Kindle sale site」→ Run workflow で手動実行�
 - `genres` — ジャンルと Browse Node ID。Amazonのカテゴリページ URL の `node=` パラメータから取得できます。`総合`(`2275256051`)と`コミック`(`2293143051`)は実データで動作確認済み。`ビジネス・経済`(`5347106051`)と`文学・評論`(`2275257051`)は未検証なので、実際の掲載内容が想定と違う場合はNode IDを見直してください
 - **`minSavingPercent`パラメータは使用禁止**: Creators APIのバグで、これを送ると検索結果が壊れます(件数激減・物理商品混入・savings情報消失を実データで確認済み)。そのため割引率での絞り込みはAPIに頼らず、`scripts/fetch_sales.py`が取得後にクライアント側で行っています(`min_saving_percent`はこのクライアントフィルタの閾値)。保険として`productGroup`に`"Ebook"`を含む商品だけに絞るフィルタも入れています
 
+## 状態ファイルのマージ設定(クローン後に1回)
+
+`data/campaign_state.json`(企画の初検出日)はCIと手元の実行の両方が書き換えるため、
+`git pull --rebase`のたびにコンフリクトします。放置するとコンフリクトマーカーが
+混入したままコミットされる事故につながるため、専用のマージドライバを用意しています。
+
+```sh
+sh scripts/setup_merge_driver.sh
+```
+
+一度実行すれば、以降のコンフリクトは「first_seenは古い方、last_seenは新しい方」を
+採る規則で自動解決されます(`scripts/merge_state.py`)。
+
 ## ローカルでのテスト
 
 キーをコマンドに直接打つとシェル履歴に残るため、`.env` ファイル(gitignore済み)を使います。
