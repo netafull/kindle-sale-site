@@ -395,6 +395,7 @@ def main() -> int:
     max_campaigns = config.get("max_campaigns", 6)
     campaign_max_pages = config.get("campaign_max_pages", 5)
     campaign_scan_limit = config.get("campaign_scan_limit", 15)
+    items_per_campaign = config.get("items_per_campaign", 12)
 
     auth = {
         "token": access_token,
@@ -436,8 +437,8 @@ def main() -> int:
             # 1ページ目でセール品がほぼ無い企画は終了済みとみなし深追いしない
             if page == 1 and len(items) < 3:
                 break
-            # 掲載枠(12冊)+シリーズ重複で削られる分が集まったら打ち切る
-            if len(items) >= 15:
+            # 掲載枠+シリーズ重複で削られる分が集まったら打ち切る
+            if len(items) >= items_per_campaign + 3:
                 break
         items.sort(key=sort_key, reverse=True)
         deduped = dedupe_series(items)
@@ -451,10 +452,13 @@ def main() -> int:
                         f"&tag={partner_tag}"
                     ),
                     "total": total,
-                    "items": deduped[:12],
+                    "items": deduped[:items_per_campaign],
                 }
             )
-            print(f"企画「{cand['name']}」: {len(deduped[:12])}冊 (対象約{total}冊)")
+            print(
+                f"企画「{cand['name']}」: "
+                f"{len(deduped[:items_per_campaign])}冊 (対象約{total}冊)"
+            )
 
     # 企画の初検出日を状態ファイルで管理し、掲載開始日として表示する
     state = {}

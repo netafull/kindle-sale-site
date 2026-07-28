@@ -19,10 +19,10 @@
   "ga_measurement_id": "G-5TTE9WZ8P5",
   "min_saving_percent": 20,
   "pages_per_genre": 5,
-  "max_campaigns": 12,
+  "max_campaigns": 20,
   "widget_pool_size": 20,
   "campaign_max_pages": 5,
-  "campaign_scan_limit": 40,
+  "campaign_scan_limit": 35,
   "genres": [
     {
       "name": "総合",
@@ -52,5 +52,6 @@
         "2292699051"
       ]
     }
-  ]
+  ],
+  "items_per_campaign": 24
 }

@@ -1,18 +1,18 @@
 {
-  "updated": "2026-07-24T23:08:18.989383+00:00",
+  "updated": "2026-07-28T01:19:01.389977+00:00",
   "site_url": "https://book.netaful.jp/",
   "site_title": "電書ポチ",
-  "campaign_count": 12,
+  "campaign_count": 17,
   "books": [
     {
-      "title": "マザーグール(9)【電子限定特典ペーパー付き】 (RYU COMICS)",
-      "price": 77,
-      "list_price": 792,
-      "percent_off": 90,
-      "points": 39,
-      "points_percent": 51,
-      "image": "https://m.media-amazon.com/images/I/51VoY9uvRKL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0BXX6F7NL?tag=natafull-22&linkCode=osi&th=1&psc=1"
+      "title": "田舎暮らしの魔草薬師は返り咲く～不正はびこる元職場を解雇されたので独立したら、なぜか各界の超一流たちが集まってきました～1巻 (グラストCOMICS)",
+      "price": 380,
+      "list_price": 759,
+      "percent_off": 50,
+      "points": 242,
+      "points_percent": 64,
+      "image": "https://m.media-amazon.com/images/I/51ub2-ugqEL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0FD9YNDDY?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
       "title": "『廃品回収』スキルで手に入れた訳ありチート魔剣が最強すぎる件～役立たずと捨てられた俺は、異世界のガラクタたちと成り上がる～1巻 (グラストCOMICS)",
@@ -35,6 +35,16 @@
       "url": "https://www.amazon.co.jp/dp/B0FD9Y6S9X?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
+      "title": "引きこもり令嬢は皇妃になんてなりたくない！～強面皇帝の溺愛が駄々漏れで困ります～２巻 (Berry's COMICS)",
+      "price": 275,
+      "list_price": 495,
+      "percent_off": 44,
+      "points": 175,
+      "points_percent": 64,
+      "image": "https://m.media-amazon.com/images/I/51wOG8+Mx-L._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0DNF4Z9FM?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
       "title": "後宮の呪詛妃～霊を視る少女は真実と愛を知る～ 3巻 (ティアード)",
       "price": 11,
       "list_price": 770,
@@ -43,16 +53,6 @@
       "points_percent": null,
       "image": "https://m.media-amazon.com/images/I/51Iw16K7OaL._SL160_.jpg",
       "url": "https://www.amazon.co.jp/dp/B0FPWYL8S1?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "電波青年 4巻 (Comicベガス)",
-      "price": 385,
-      "list_price": 693,
-      "percent_off": 44,
-      "points": 193,
-      "points_percent": 50,
-      "image": "https://m.media-amazon.com/images/I/51SCP8lwfcL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B08HRKTRHH?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
       "title": "無能な継母ですが、家族の溺愛が止まりません！ 1 (ＦＬＯＳ　ＣＯＭＩＣ)",
@@ -105,6 +105,46 @@
       "url": "https://www.amazon.co.jp/dp/B0DCN1PL45?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
+      "title": "バスタード・ソードマン 1 (電撃コミックスNEXT)",
+      "price": 99,
+      "list_price": 924,
+      "percent_off": 89,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51ZLHwE4YsL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0DGSR851H?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "辺境モブ貴族のウチに嫁いできた悪役令嬢が、めちゃくちゃできる良い嫁なんだが？ 1 (ドラゴンコミックスエイジ)",
+      "price": 99,
+      "list_price": 924,
+      "percent_off": 89,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/51dq1NLYclL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0DXYRDKZ3?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "悪役令嬢たちは揺るがない１ (ＦＬＯＳ　ＣＯＭＩＣ)",
+      "price": 99,
+      "list_price": 924,
+      "percent_off": 89,
+      "points": 1,
+      "points_percent": 1,
+      "image": "https://m.media-amazon.com/images/I/519aw0DcKxL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0DTP5JD8W?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "進撃の「ガチ中華」　中国を超えた？　激ウマ中華料理店・探訪記",
+      "price": 1320,
+      "list_price": 1650,
+      "percent_off": 20,
+      "points": 922,
+      "points_percent": 70,
+      "image": "https://m.media-amazon.com/images/I/51RWssV5bbL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0CYJ4SYYW?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
       "title": "宇宙兄弟（１） (モーニングコミックス)",
       "price": 100,
       "list_price": 891,
@@ -115,94 +155,54 @@
       "url": "https://www.amazon.co.jp/dp/B009KWUFNG?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "title": "とんがり帽子のアトリエ（１） (モーニングコミックス)",
-      "price": 100,
-      "list_price": 869,
+      "title": "怠惰な悪辱貴族に転生した俺、シナリオをぶっ壊したら規格外の魔力で最凶になった　Vol.1 (ドラゴンコミックスエイジ)",
+      "price": 99,
+      "list_price": 792,
       "percent_off": 88,
       "points": 1,
       "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/61NvCgPIMML._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B01N22480D?tag=natafull-22&linkCode=osi&th=1&psc=1"
+      "image": "https://m.media-amazon.com/images/I/51uHIMwjs0L._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0F629PLTX?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "title": "モブサイコ100（５） (マンガワンコミックス)",
-      "price": 693,
-      "list_price": 715,
-      "percent_off": 3,
-      "points": 593,
-      "points_percent": 86,
-      "image": "https://m.media-amazon.com/images/I/51-RYfZalfL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B00HC6K90Q?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "平和の国の島崎へ（１） (モーニングコミックス)",
-      "price": 100,
-      "list_price": 792,
-      "percent_off": 87,
+      "title": "クラスで２番目に可愛い女の子と友だちになった　１ (アライブ＋)",
+      "price": 99,
+      "list_price": 814,
+      "percent_off": 88,
       "points": 1,
       "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/51MmMAEl6VL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0BPL837N5?tag=natafull-22&linkCode=osi&th=1&psc=1"
+      "image": "https://m.media-amazon.com/images/I/51CBDj0MzZL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0BVPRB4P7?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "title": "あくまでクジャクの話です。（２） (コミックＤＡＹＳコミックス)",
-      "price": 100,
-      "list_price": 792,
-      "percent_off": 87,
+      "title": "J⇔M　ジェイエム　１ (HARTA COMIX)",
+      "price": 99,
+      "list_price": 836,
+      "percent_off": 88,
       "points": 1,
       "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/51bBYfIRQ1L._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0D3HS83CZ?tag=natafull-22&linkCode=osi&th=1&psc=1"
+      "image": "https://m.media-amazon.com/images/I/51HlATXJKIL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0CK4CWXC2?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "title": "屋根の下のアルテミス（１） (マガジンポケットコミックス)",
-      "price": 100,
+      "title": "ウスズミの果て　１ (HARTA COMIX)",
+      "price": 99,
       "list_price": 792,
-      "percent_off": 87,
+      "percent_off": 88,
       "points": 1,
       "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/514m-bKHWlL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0F6D4ZP7P?tag=natafull-22&linkCode=osi&th=1&psc=1"
+      "image": "https://m.media-amazon.com/images/I/511HfKBwkBL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0C138C3M1?tag=natafull-22&linkCode=osi&th=1&psc=1"
     },
     {
-      "title": "だんドーン（３） (モーニングコミックス)",
-      "price": 100,
-      "list_price": 792,
-      "percent_off": 87,
+      "title": "黄金の経験値　１ (ドラゴンコミックスエイジ)",
+      "price": 99,
+      "list_price": 836,
+      "percent_off": 88,
       "points": 1,
       "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/519YejzkZRL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0D1BHL3XC?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "金田一パパの事件簿（１） (コミックＤＡＹＳコミックス)",
-      "price": 100,
-      "list_price": 792,
-      "percent_off": 87,
-      "points": 1,
-      "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/513o0pJhVZL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0FB8LQX3P?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "ずっと青春ぽいですよ（１） (コミックＤＡＹＳコミックス)",
-      "price": 100,
-      "list_price": 792,
-      "percent_off": 87,
-      "points": 1,
-      "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/51keufNrkcL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0CLY1QTLH?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "定額制夫の「こづかい万歳」　月額２万千円の金欠ライフ（３） (モーニングコミックス)",
-      "price": 100,
-      "list_price": 792,
-      "percent_off": 87,
-      "points": 1,
-      "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/51YQFXIt9RL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B09CCY9PBV?tag=natafull-22&linkCode=osi&th=1&psc=1"
+      "image": "https://m.media-amazon.com/images/I/51yHBWWV7jL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0CZ3SGX4L?tag=natafull-22&linkCode=osi&th=1&psc=1"
     }
   ]
 }

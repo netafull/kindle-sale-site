@@ -154,9 +154,12 @@ def generate_html(data: dict) -> str:
     for i, c in enumerate(campaigns):
         books = "\n".join(render_book(b) for b in c["items"])
         total = f"対象約{c['total']:,}冊" if c.get("total") else ""
+        # 企画数が多くページが極端に縦長になるため、3件目以降は畳んでおく。
+        # 一覧性を保ちつつ、新着2件はすぐ中身が見える状態にする
+        opened = " open" if i < 2 else ""
         sections.append(
-            f'<details open id="c{i}">\n'
-            f'<summary><h2>🔥 {esc(c["name"])}</h2></summary>\n'
+            f'<details{opened} id="c{i}">\n'
+            f'<summary><h2>🔥 {esc(c["name"])} ({len(c["items"])}冊)</h2></summary>\n'
             f'<p class="cmeta">{total}{fmt_since(c.get("since"))}</p>\n'
             f'<a class="cmeta-link" href="{esc(c["url"])}" '
             f'target="_blank" rel="noopener sponsored">'
