@@ -22,7 +22,7 @@
   "max_campaigns": 20,
   "widget_pool_size": 20,
   "campaign_max_pages": 5,
-  "campaign_scan_limit": 35,
+  "campaign_scan_limit": 40,
   "genres": [
     {
       "name": "総合",

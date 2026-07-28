@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-28T01:19:01.389977+00:00",
+  "fetched_at": "2026-07-28T03:03:32.926528+00:00",
   "min_saving_percent": 20,
   "campaigns": [
     {
@@ -1111,6 +1111,75 @@
           "points_percent": 30,
           "image": "https://m.media-amazon.com/images/I/51EgOiFaI6L._SL160_.jpg",
           "url": "https://www.amazon.co.jp/dp/B08YYMJZK5?tag=natafull-22&linkCode=osi&th=1&psc=1"
+        }
+      ],
+      "since": "2026-07-28"
+    },
+    {
+      "node_id": "217646434051",
+      "name": "Amazonマンガ週末祭 第4弾",
+      "url": "https://www.amazon.co.jp/b?node=217646434051&tag=natafull-22",
+      "total": 1000,
+      "items": [
+        {
+          "asin": "B0BPL837N5",
+          "title": "平和の国の島崎へ（１） (モーニングコミックス)",
+          "author": "濱田轟天, 瀬下猛, 瀬下猛",
+          "price": 100,
+          "list_price": 792,
+          "percent_off": 87,
+          "points": 1,
+          "points_percent": 1,
+          "image": "https://m.media-amazon.com/images/I/51MmMAEl6VL._SL160_.jpg",
+          "url": "https://www.amazon.co.jp/dp/B0BPL837N5?tag=natafull-22&linkCode=osi&th=1&psc=1"
+        },
+        {
+          "asin": "B0D3HS83CZ",
+          "title": "あくまでクジャクの話です。（２） (コミックＤＡＹＳコミックス)",
+          "author": "小出もと貴",
+          "price": 100,
+          "list_price": 792,
+          "percent_off": 87,
+          "points": 1,
+          "points_percent": 1,
+          "image": "https://m.media-amazon.com/images/I/51bBYfIRQ1L._SL160_.jpg",
+          "url": "https://www.amazon.co.jp/dp/B0D3HS83CZ?tag=natafull-22&linkCode=osi&th=1&psc=1"
+        },
+        {
+          "asin": "B0CLY1QTLH",
+          "title": "ずっと青春ぽいですよ（１） (コミックＤＡＹＳコミックス)",
+          "author": "矢寺圭太",
+          "price": 100,
+          "list_price": 792,
+          "percent_off": 87,
+          "points": 1,
+          "points_percent": 1,
+          "image": "https://m.media-amazon.com/images/I/51keufNrkcL._SL160_.jpg",
+          "url": "https://www.amazon.co.jp/dp/B0CLY1QTLH?tag=natafull-22&linkCode=osi&th=1&psc=1"
+        },
+        {
+          "asin": "B0DCNLC3VV",
+          "title": "魔法医レクスの変態カルテ　2巻 (バンチコミックス)",
+          "author": "元三大介",
+          "price": 396,
+          "list_price": 792,
+          "percent_off": 50,
+          "points": 4,
+          "points_percent": 1,
+          "image": "https://m.media-amazon.com/images/I/51LjsrlpQUL._SL160_.jpg",
+          "url": "https://www.amazon.co.jp/dp/B0DCNLC3VV?tag=natafull-22&linkCode=osi&th=1&psc=1"
+        },
+        {
+          "asin": "B0G2HNRCQ1",
+          "title": "【電子版限定特典付き】才女のお世話5 高嶺の花だらけな名門校で、学院一のお嬢様（生活能力皆無）を陰ながらお世話することになりました (HJコミックス)",
+          "author": "坂石遊作, 水島空彦, みわべさくら",
+          "price": 385,
+          "list_price": 770,
+          "percent_off": 50,
+          "points": 4,
+          "points_percent": 1,
+          "image": "https://m.media-amazon.com/images/I/51K7V1AlNFL._SL160_.jpg",
+          "url": "https://www.amazon.co.jp/dp/B0G2HNRCQ1?tag=natafull-22&linkCode=osi&th=1&psc=1"
         }
       ],
       "since": "2026-07-28"
