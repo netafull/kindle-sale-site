@@ -84,6 +84,14 @@ details > .grid, details > .empty { margin-top: 12px; }
 .group { max-width: 960px; margin: 24px auto 0; padding: 0 16px;
   font-size: 13px; font-weight: 700; color: var(--muted);
   letter-spacing: 0.08em; }
+/* グリッド末尾の「続きを見る」カード。書影が無いぶん中央揃えにして
+   他のカードと高さを合わせる */
+.book.more { align-items: center; justify-content: center;
+  border-style: dashed; background: transparent; }
+.book.more:hover { background: var(--card); }
+.book.more .more-i { font-size: 22px; flex-shrink: 0; }
+.book.more .more-t { font-size: 14px; font-weight: 600;
+  color: var(--accent); line-height: 1.4; }
 .cmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0 19px; }
 /* 見出しに添えるセール規模・掲載開始日。企画名より控えめに見せる */
 .hmeta { font-size: 13px; font-weight: normal; color: var(--muted); }
@@ -166,7 +174,21 @@ def generate_html(data: dict) -> str:
     if campaigns:
         sections.append('<p class="group">開催中のセール企画 (新着順)</p>')
     for i, c in enumerate(campaigns):
-        books = "\n".join(render_book(b) for b in c["items"])
+        # グリッド末尾に「続きを見る」カードを置くぶん、本のカードを
+        # 1つ減らして列数(最大3)の倍数を保ち、末尾行が欠けないようにする
+        shown = c["items"][:-1] if len(c["items"]) % 3 == 0 else c["items"]
+        books = "\n".join(render_book(b) for b in shown)
+        # 上部のボタンは本を見終わった時点では画面外に流れているため、
+        # 読了直後の「もっと見たい」を受け止める導線として機能する
+        rest = c["total"] - len(shown) if c.get("total") else 0
+        rest_txt = f"ほか約{rest:,}冊" if rest > 0 else "対象本"
+        books += (
+            f'\n<a class="book more" href="{esc(c["url"])}" '
+            f'target="_blank" rel="noopener sponsored">'
+            f'<span class="more-i">🛒</span>'
+            f'<div><div class="more-t">{rest_txt}を<br>Amazonで見る</div></div>'
+            f"</a>"
+        )
         # 企画数が多くページが極端に縦長になるため、3件目以降は畳んでおく。
         # 一覧性を保ちつつ、新着2件はすぐ中身が見える状態にする
         opened = " open" if i < 2 else ""
