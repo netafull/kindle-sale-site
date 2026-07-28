@@ -85,6 +85,8 @@ details > .grid, details > .empty { margin-top: 12px; }
   font-size: 13px; font-weight: 700; color: var(--muted);
   letter-spacing: 0.08em; }
 .cmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0 19px; }
+/* 見出しに添えるセール規模・掲載開始日。企画名より控えめに見せる */
+.hmeta { font-size: 13px; font-weight: normal; color: var(--muted); }
 .cmeta a { color: var(--accent); }
 .cmeta-link { display: inline-block; margin: 8px 0 0 19px; padding: 6px 14px;
   background: var(--accent); color: #fff; border-radius: 999px;
@@ -142,25 +144,36 @@ def generate_html(data: dict) -> str:
     campaigns = data.get("campaigns") or []
     others = data.get("others") or []
 
-    def fmt_since(since: str | None) -> str:
-        if not since:
-            return ""
-        d = datetime.date.fromisoformat(since)
-        return f" ・ {d.month}/{d.day}から掲載"
+    def head_meta(c: dict) -> str:
+        """見出しに添える情報(セール規模と掲載開始日)。
+
+        3件目以降は畳んだ状態で表示するため、見出しだけでセールの
+        規模と新しさが分かるようにしておく。
+        """
+        parts = []
+        if c.get("total"):
+            parts.append(f"対象約{c['total']:,}冊")
+        since = c.get("since")
+        if since:
+            try:
+                d = datetime.date.fromisoformat(since)
+                parts.append(f"{d.month}/{d.day}〜")
+            except ValueError:
+                pass
+        return f" 【{' ・ '.join(parts)}】" if parts else ""
 
     sections = []
     if campaigns:
         sections.append('<p class="group">開催中のセール企画 (新着順)</p>')
     for i, c in enumerate(campaigns):
         books = "\n".join(render_book(b) for b in c["items"])
-        total = f"対象約{c['total']:,}冊" if c.get("total") else ""
         # 企画数が多くページが極端に縦長になるため、3件目以降は畳んでおく。
         # 一覧性を保ちつつ、新着2件はすぐ中身が見える状態にする
         opened = " open" if i < 2 else ""
         sections.append(
             f'<details{opened} id="c{i}">\n'
-            f'<summary><h2>🔥 {esc(c["name"])} ({len(c["items"])}冊)</h2></summary>\n'
-            f'<p class="cmeta">{total}{fmt_since(c.get("since"))}</p>\n'
+            f'<summary><h2>🔥 {esc(c["name"])}'
+            f'<span class="hmeta">{head_meta(c)}</span></h2></summary>\n'
             f'<a class="cmeta-link" href="{esc(c["url"])}" '
             f'target="_blank" rel="noopener sponsored">'
             f'🛒 このセールの対象本をAmazonですべて見る</a>\n'
