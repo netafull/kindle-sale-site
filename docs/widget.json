@@ -1,9 +1,29 @@
 {
-  "updated": "2026-07-28T03:03:32.926528+00:00",
+  "updated": "2026-07-30T12:04:01.806093+00:00",
   "site_url": "https://book.netaful.jp/",
   "site_title": "電書ポチ",
   "campaign_count": 18,
   "books": [
+    {
+      "title": "鬼の花嫁～運命の出逢い～ (スターツ出版文庫)",
+      "price": 407,
+      "list_price": 814,
+      "percent_off": 50,
+      "points": 259,
+      "points_percent": 64,
+      "image": "https://m.media-amazon.com/images/I/61Ac80kkFHL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B08M66LSRB?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
+    {
+      "title": "鬼の花嫁　新婚編一～新たな出会い～【電子限定SS付き】 (スターツ出版文庫)",
+      "price": 325,
+      "list_price": 649,
+      "percent_off": 50,
+      "points": 207,
+      "points_percent": 64,
+      "image": "https://m.media-amazon.com/images/I/51yEennt0qL._SL160_.jpg",
+      "url": "https://www.amazon.co.jp/dp/B0BBMG8ZWF?tag=natafull-22&linkCode=osi&th=1&psc=1"
+    },
     {
       "title": "田舎暮らしの魔草薬師は返り咲く～不正はびこる元職場を解雇されたので独立したら、なぜか各界の超一流たちが集まってきました～1巻 (グラストCOMICS)",
       "price": 380,
@@ -183,26 +203,6 @@
       "points_percent": 1,
       "image": "https://m.media-amazon.com/images/I/51HlATXJKIL._SL160_.jpg",
       "url": "https://www.amazon.co.jp/dp/B0CK4CWXC2?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "ウスズミの果て　１ (HARTA COMIX)",
-      "price": 99,
-      "list_price": 792,
-      "percent_off": 88,
-      "points": 1,
-      "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/511HfKBwkBL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0C138C3M1?tag=natafull-22&linkCode=osi&th=1&psc=1"
-    },
-    {
-      "title": "黄金の経験値　１ (ドラゴンコミックスエイジ)",
-      "price": 99,
-      "list_price": 836,
-      "percent_off": 88,
-      "points": 1,
-      "points_percent": 1,
-      "image": "https://m.media-amazon.com/images/I/51yHBWWV7jL._SL160_.jpg",
-      "url": "https://www.amazon.co.jp/dp/B0CZ3SGX4L?tag=natafull-22&linkCode=osi&th=1&psc=1"
     }
   ]
 }
