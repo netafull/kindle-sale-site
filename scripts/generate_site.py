@@ -460,7 +460,8 @@ WIDGET_JS = r"""(function () {
     style.textContent = [
       "#densho-widget{font-size:14px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,\"Hiragino Sans\",\"Noto Sans JP\",sans-serif;}",
       ".dpy-box{border:1px solid #e5e2dc;border-radius:10px;overflow:hidden;background:#ffffff;color:#1a1a1a;}",
-      ".dpy-head{display:block;padding:8px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
+      ".dpy-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:8px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
+      ".dpy-more{font-size:11px;font-weight:600;color:#e47911;white-space:nowrap;flex-shrink:0;}",
       ".dpy-head:hover{color:#e47911;}",
       ".dpy-list{display:flex;flex-direction:column;}",
       ".dpy-row{display:flex;gap:10px;padding:8px 14px;text-decoration:none;color:#1a1a1a;border-bottom:1px solid #f0ede7;}",
@@ -476,8 +477,6 @@ WIDGET_JS = r"""(function () {
       ".dpy-off{display:inline-block;font-size:10px;font-weight:700;color:#fff;background:#e47911;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px;}",
       ".dpy-off.dpy-hi{background:#d0342c;}",
       ".dpy-pt{font-size:10px;color:#0a7d3c;font-weight:600;margin-top:1px;}",
-      ".dpy-foot{display:block;padding:10px 14px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#e47911;text-align:center;}",
-      ".dpy-foot:hover{opacity:0.85;}",
       '@media (prefers-color-scheme: dark) {',
       ".dpy-box{border-color:#2c2e36;background:#1e2027;color:#e8e8e6;}",
       ".dpy-head{background:#20222a;color:#e8e8e6;border-bottom-color:#2c2e36;}",
@@ -551,11 +550,23 @@ WIDGET_JS = r"""(function () {
 
     var box = el("div", { className: "dpy-box" });
 
+    // 見出しと末尾ボタンはリンク先が同じで導線が重複していた。
+    // 見出しに寄せて1つにまとめ、40px分の縦幅を削る。
+    // ただし見出しだけではリンクと分からないため、右端に誘導文言を添える
+    var campaignCount = data.campaign_count || 0;
     var head = el("a", {
       className: "dpy-head",
-      text: "📚 本日のKindleセール",
       attrs: { href: siteUrl, target: "_blank", rel: "noopener" },
     });
+    head.appendChild(el("span", { text: "📚 本日のKindleセール" }));
+    head.appendChild(
+      el("span", {
+        className: "dpy-more",
+        text: campaignCount
+          ? "セール" + campaignCount + "件を見る →"
+          : "すべて見る →",
+      })
+    );
     box.appendChild(head);
 
     var list = el("div", { className: "dpy-list" });
@@ -563,14 +574,6 @@ WIDGET_JS = r"""(function () {
       list.appendChild(renderBookRow(books[i]));
     }
     box.appendChild(list);
-
-    var campaignCount = data.campaign_count || 0;
-    var foot = el("a", {
-      className: "dpy-foot",
-      text: "🛒 開催中のセール" + campaignCount + "件をすべて見る",
-      attrs: { href: siteUrl, target: "_blank", rel: "noopener" },
-    });
-    box.appendChild(foot);
 
     container.textContent = "";
     container.appendChild(box);
