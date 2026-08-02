@@ -38,8 +38,8 @@
     style.textContent = [
       "#densho-widget{font-size:14px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,\"Hiragino Sans\",\"Noto Sans JP\",sans-serif;}",
       ".dpy-box{border:1px solid #e5e2dc;border-radius:10px;overflow:hidden;background:#ffffff;color:#1a1a1a;}",
-      ".dpy-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:8px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
-      ".dpy-more{font-size:11px;font-weight:600;color:#e47911;white-space:nowrap;flex-shrink:0;}",
+      ".dpy-head{display:flex;align-items:baseline;gap:8px;padding:8px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
+      ".dpy-more{font-size:11px;font-weight:600;color:#e47911;white-space:nowrap;flex-shrink:0;margin-left:auto;}",
       ".dpy-head:hover{color:#e47911;}",
       ".dpy-list{display:flex;flex-direction:column;}",
       ".dpy-row{display:flex;gap:10px;padding:8px 14px;text-decoration:none;color:#1a1a1a;border-bottom:1px solid #f0ede7;}",
@@ -70,7 +70,7 @@
 
   function renderBookRow(book) {
     var row = el("a", {
-      className: "dpy-row",
+      className: "dpy-row no-icon",
       attrs: {
         href: book.url || "#",
         target: "_blank",
@@ -133,7 +133,7 @@
     // ただし見出しだけではリンクと分からないため、右端に誘導文言を添える
     var campaignCount = data.campaign_count || 0;
     var head = el("a", {
-      className: "dpy-head",
+      className: "dpy-head no-icon",
       attrs: { href: siteUrl, target: "_blank", rel: "noopener" },
     });
     head.appendChild(el("span", { text: "📚 本日のKindleセール" }));
