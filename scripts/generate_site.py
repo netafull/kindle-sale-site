@@ -6,6 +6,7 @@ from __future__ import annotations
 import datetime
 import html
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -459,22 +460,22 @@ WIDGET_JS = r"""(function () {
     style.textContent = [
       "#densho-widget{font-size:14px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,\"Hiragino Sans\",\"Noto Sans JP\",sans-serif;}",
       ".dpy-box{border:1px solid #e5e2dc;border-radius:10px;overflow:hidden;background:#ffffff;color:#1a1a1a;}",
-      ".dpy-head{display:block;padding:10px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
+      ".dpy-head{display:block;padding:8px 14px;font-size:14px;font-weight:700;background:#faf6ef;color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e5e2dc;}",
       ".dpy-head:hover{color:#e47911;}",
       ".dpy-list{display:flex;flex-direction:column;}",
-      ".dpy-row{display:flex;gap:10px;padding:10px 14px;text-decoration:none;color:#1a1a1a;border-bottom:1px solid #f0ede7;}",
+      ".dpy-row{display:flex;gap:10px;padding:8px 14px;text-decoration:none;color:#1a1a1a;border-bottom:1px solid #f0ede7;}",
       ".dpy-row:last-child{border-bottom:none;}",
       ".dpy-row:hover{background:#faf8f4;}",
       ".dpy-img{width:46px;height:66px;object-fit:cover;border-radius:4px;flex-shrink:0;background:#e5e2dc;}",
       ".dpy-ph{width:46px;height:66px;border-radius:4px;flex-shrink:0;background:#e5e2dc;}",
       ".dpy-info{min-width:0;flex:1;}",
       ".dpy-title{font-size:13px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}",
-      ".dpy-price{margin-top:4px;font-size:13px;}",
+      ".dpy-price{margin-top:2px;font-size:13px;}",
       ".dpy-now{font-weight:700;color:#d0342c;}",
       ".dpy-was{font-size:11px;color:#6b6b6b;text-decoration:line-through;margin-left:5px;}",
       ".dpy-off{display:inline-block;font-size:10px;font-weight:700;color:#fff;background:#e47911;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px;}",
       ".dpy-off.dpy-hi{background:#d0342c;}",
-      ".dpy-pt{font-size:10px;color:#0a7d3c;font-weight:600;margin-top:2px;}",
+      ".dpy-pt{font-size:10px;color:#0a7d3c;font-weight:600;margin-top:1px;}",
       ".dpy-foot{display:block;padding:10px 14px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#e47911;text-align:center;}",
       ".dpy-foot:hover{opacity:0.85;}",
       '@media (prefers-color-scheme: dark) {',
@@ -604,6 +605,27 @@ WIDGET_JS = r"""(function () {
 """
 
 
+def compact_title(title: str) -> str:
+    """ウィジェット用にタイトルを短くする。
+
+    ライトノベル系は「作品名～長い副題～1巻 (レーベル名)」という形式が多く、
+    そのままだと2行に折り返してウィジェットが縦に伸びる。実データ264冊のうち
+    223冊が該当した。リンク先のAmazonページには完全なタイトルがあるので、
+    ここでは1行に収まることを優先する。
+    """
+    s = re.sub(r"[～~][^～~]{8,}[～~]", "", title)
+    s = re.sub(r"[（(][^（()）]{2,30}[)）]\s*$", "", s)
+    s = re.sub(r"[\s　]+", " ", s).strip()
+    # 副題を落とすと「作品名 1 作品名」のように同じ語が残ることがある
+    m = re.match(r"^(.{4,}?)\s", s)
+    if m:
+        head = m.group(1)
+        idx = s.find(head, len(head))
+        if idx > 0:
+            s = s[:idx].strip()
+    return s or title
+
+
 def generate_widget_data(data: dict) -> dict:
     site_url = CONFIG.get("site_url", "")
     campaigns = data.get("campaigns") or []
@@ -632,7 +654,7 @@ def generate_widget_data(data: dict) -> dict:
 
     books = [
         {
-            "title": b.get("title"),
+            "title": compact_title(b.get("title") or ""),
             "price": b.get("price"),
             "list_price": b.get("list_price"),
             "percent_off": b.get("percent_off"),
