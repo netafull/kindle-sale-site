@@ -59,5 +59,10 @@
     }
   ],
   "items_per_campaign": 24,
-  "policy_url": "https://netaful.jp/policy.html"
+  "policy_url": "https://netaful.jp/policy.html",
+  "about": [
+    "Amazonで開催中のKindle本セール企画と、割引・ポイント還元中の電子書籍をまとめています。情報はAmazonの公式API（Creators API）から1時間ごとに自動取得しており、価格や割引率は取得時点のものです。",
+    "掲載の基準は、割引率とポイント還元率の合計が20%以上であること。セール企画は開催中のものを新しい順に並べ、各企画には対象冊数と掲載開始日を添えています。",
+    "運営はブログ「ネタフル」のコグレです。姉妹サイトに家電ポチ・林檎ポチがあります。"
+  ]
 }

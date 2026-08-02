@@ -119,6 +119,14 @@ details > .grid, details > .empty { margin-top: 12px; }
 footer { max-width: 960px; margin: 0 auto; padding: 16px;
   color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
 .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+/* サイトの説明。訪問者の目的(セール情報)を邪魔しないよう本文の最後に置く。
+   AIは位置に関わらずページ全体を読むため、下でも検索・AI向けの効果は落ちない */
+.about { max-width: 960px; margin: 40px auto 0; padding: 20px 16px 0;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 13px;
+  line-height: 1.9; }
+.about h2 { font-size: 14px; border-left-width: 3px; margin-bottom: 8px;
+  color: var(--text); }
+.about p { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -2847,6 +2855,12 @@ footer { max-width: 960px; margin: 0 auto; padding: 16px;
 </a>
 </div>
 </details>
+<section class="about">
+<h2>電書ポチについて</h2>
+<p>Amazonで開催中のKindle本セール企画と、割引・ポイント還元中の電子書籍をまとめています。情報はAmazonの公式API（Creators API）から1時間ごとに自動取得しており、価格や割引率は取得時点のものです。</p>
+<p>掲載の基準は、割引率とポイント還元率の合計が20%以上であること。セール企画は開催中のものを新しい順に並べ、各企画には対象冊数と掲載開始日を添えています。</p>
+<p>運営はブログ「ネタフル」のコグレです。姉妹サイトに家電ポチ・林檎ポチがあります。</p>
+</section>
 </main>
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
