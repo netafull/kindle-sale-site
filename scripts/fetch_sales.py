@@ -411,6 +411,14 @@ def main() -> int:
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         print(f"[warn] 企画一覧の取得に失敗: {e}", file=sys.stderr)
         candidates = []
+    # 候補に挙がったのに採用しなかった企画を残す。新しい企画が載らないとき、
+    # そもそも候補に出ていないのか、セール品が足りず落ちたのかを切り分ける
+    skipped = []
+    if candidates:
+        print(
+            f"企画候補: {len(candidates)}件 "
+            f"(うち上位{min(campaign_scan_limit, len(candidates))}件をスキャン)"
+        )
     for cand in candidates[:campaign_scan_limit]:
         if len(campaigns) >= max_campaigns:
             break
@@ -459,6 +467,11 @@ def main() -> int:
                 f"企画「{cand['name']}」: "
                 f"{len(deduped[:items_per_campaign])}冊 (対象約{total}冊)"
             )
+        else:
+            skipped.append(f"{cand['name']}({len(deduped)}冊)")
+
+    if skipped:
+        print(f"セール品が足りず不採用: {' / '.join(skipped)}")
 
     # 企画の初検出日を状態ファイルで管理し、掲載開始日として表示する
     state = {}
