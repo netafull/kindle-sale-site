@@ -482,16 +482,24 @@ def main() -> int:
             "全企画の初検出日がリセットされます",
             file=sys.stderr,
         )
-    today_dt = datetime.datetime.now(
-        datetime.timezone(datetime.timedelta(hours=9))
-    ).date()
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
+    today_dt = now.date()
     today = today_dt.isoformat()
+    now_iso = now.isoformat(timespec="seconds")
     new_state = {}
     for c in campaigns:
-        first_seen = (state.get(c["node_id"]) or {}).get("first_seen") or today
+        entry = state.get(c["node_id"]) or {}
+        first_seen = entry.get("first_seen") or today
+        # 日付だけではRSSのpubDateに使えないため実時刻も残す。
+        # 時刻を持たない既存エントリは、前日夜と紛れないよう正午とみなす
+        first_seen_at = entry.get("first_seen_at") or (
+            now_iso if not entry.get("first_seen") else f"{first_seen}T12:00:00+09:00"
+        )
         c["since"] = first_seen
+        c["since_at"] = first_seen_at
         new_state[c["node_id"]] = {
             "first_seen": first_seen,
+            "first_seen_at": first_seen_at,
             "last_seen": today,
             "name": c["name"],
         }

@@ -25,6 +25,7 @@
   "min_saving_percent": 20,
   "pages_per_genre": 5,
   "max_campaigns": 30,
+  "rss_campaign_days": 7,
   "widget_pool_size": 20,
   "campaign_max_pages": 5,
   "campaign_scan_limit": 40,

@@ -168,8 +168,9 @@ def generate_html(data: dict) -> str:
         規模と新しさが分かるようにしておく。
         """
         parts = []
-        if c.get("total"):
-            parts.append(f"対象約{c['total']:,}冊")
+        scale = scale_text(c.get("total"))
+        if scale:
+            parts.append(scale)
         since = c.get("since")
         if since:
             try:
@@ -368,31 +369,71 @@ Amazonのアソシエイトとして、当サイトは適格販売により収�
 """
 
 
+def scale_text(total) -> str:
+    """企画の規模を表す文言を作る。
+
+    AmazonのtotalResultCountは1000で頭打ちになるため、そのまま「約1,000冊」
+    と書くと、企画名に「対象作品2500点以上」とあるものと矛盾する。
+    上限に張り付いた場合は「以上」にして実数と誤解されないようにする。
+    """
+    if not total:
+        return ""
+    if total >= 1000:
+        return "対象1,000冊以上"
+    return f"対象約{total:,}冊"
+
+
 def generate_rss(data: dict) -> str:
+    """在庫一覧ではなく「新しく始まったセール企画」のフィードにする。
+
+    対象本をそのまま並べると、平時は何日も更新が無く、企画が入れ替わった
+    回だけ百件以上がまとめて届く。guidをASINだけにしていたため、
+    一度終わった本が後日また値引きされても購読者には届かなかった。
+    企画単位なら「何が始まったか」が1記事で伝わり、guidに開始日を含めれば
+    同じ企画が再開催されたときも新しい記事として届く。
+    """
     site_url = CONFIG.get("site_url", "")
-    now = datetime.datetime.now(datetime.timezone.utc).strftime(
+    now_dt = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
+    now = now_dt.astimezone(datetime.timezone.utc).strftime(
         "%a, %d %b %Y %H:%M:%S +0000"
     )
+    # 企画は数日に1本しか始まらないので、窓を広めに取ってもフィードは
+    # 短いままになる。guidに開始日が入っているため再配信もされない
+    window = CONFIG.get("rss_campaign_days", 7)
     items_xml = []
-    seen: set[str] = set()
-    sources = [
-        {"name": c["name"], "items": c["items"]}
-        for c in data.get("campaigns") or []
-    ] + [{"name": "その他のセール本", "items": data.get("others") or []}]
-    for genre in sources:
-        for b in genre["items"][:20]:
-            if b["asin"] in seen:
-                continue
-            seen.add(b["asin"])
-            off = f"【{b['percent_off']}%OFF】" if b.get("percent_off") else ""
-            items_xml.append(
-                f"""<item>
-<title>{esc(off + b["title"] + f" ¥{int(b['price']):,}")}</title>
-<link>{esc(b["url"])}</link>
-<guid isPermaLink="false">{esc(b["asin"])}</guid>
-<category>{esc(genre["name"])}</category>
+    rows = []
+    for c in data.get("campaigns") or []:
+        at = c.get("since_at")
+        if not at:
+            continue
+        try:
+            started = datetime.datetime.fromisoformat(at)
+        except ValueError:
+            continue
+        if (now_dt - started).days > window:
+            continue
+        rows.append((started, c))
+    rows.sort(key=lambda r: r[0], reverse=True)
+    for started, c in rows:
+        scale = scale_text(c.get("total"))
+        title = c["name"] + (f"（{scale}）" if scale else "")
+        # 企画名だけでは中身が想像できないため、目立つ数冊を添える
+        picks = "".join(
+            f"<li>{esc(b['title'])}"
+            + (f"（{b['percent_off']}%OFF）" if b.get("percent_off") else "")
+            + "</li>"
+            for b in (c.get("items") or [])[:5]
+        )
+        desc = f"<ul>{picks}</ul>" if picks else ""
+        items_xml.append(
+            f"""<item>
+<title>{esc(title)}</title>
+<link>{esc(c["url"])}</link>
+<guid isPermaLink="false">{esc(c["node_id"] + "-" + (c.get("since") or ""))}</guid>
+<description>{esc(desc)}</description>
+<pubDate>{started.strftime("%a, %d %b %Y %H:%M:%S %z")}</pubDate>
 </item>"""
-            )
+        )
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
