@@ -425,6 +425,10 @@ def main() -> int:
         items: list[dict] = []
         seen: set[str] = set()
         total = None
+        # 不採用のとき、検索が商品を返していないのか、返ってきたが
+        # 割引が足りないのかを区別できるようにする
+        fetched = 0
+        dropped = 0
         for page in range(1, campaign_max_pages + 1):
             res = search_with_retry(
                 auth,
@@ -436,7 +440,11 @@ def main() -> int:
             )
             if total is None:
                 total = (res.get("searchResult") or {}).get("totalResultCount")
-            parsed_items, _ = parse_items(res, partner_tag, min_saving)
+            fetched += len(
+                pick(res.get("searchResult") or {}, "items", "Items") or []
+            )
+            parsed_items, no_disc = parse_items(res, partner_tag, min_saving)
+            dropped += no_disc
             for parsed in parsed_items:
                 if parsed["asin"] not in seen:
                     seen.add(parsed["asin"])
@@ -468,7 +476,10 @@ def main() -> int:
                 f"{len(deduped[:items_per_campaign])}冊 (対象約{total}冊)"
             )
         else:
-            skipped.append(f"{cand['name']}({len(deduped)}冊)")
+            skipped.append(
+                f"{cand['name']}(採用{len(deduped)}/取得{fetched}"
+                f"・割引不足{dropped}・対象{total})"
+            )
 
     if skipped:
         print(f"セール品が足りず不採用: {' / '.join(skipped)}")
