@@ -450,8 +450,11 @@ def main() -> int:
                     seen.add(parsed["asin"])
                     items.append(parsed)
             time.sleep(1.2)
-            # 1ページ目でセール品がほぼ無い企画は終了済みとみなし深追いしない
-            if page == 1 and len(items) < 3:
+            # 商品が1件も返らない企画は開催前か終了済みとみなし深追いしない。
+            # 以前は「1ページ目でセール品3冊未満」で打ち切っていたが、
+            # 検索順は割引率と無関係なため、対象1000冊の企画でも先頭10件が
+            # たまたま値引きの小さい本だと丸ごと捨てられていた
+            if page == 1 and not fetched:
                 break
             # 掲載枠+シリーズ重複で削られる分が集まったら打ち切る
             if len(items) >= items_per_campaign + 3:
