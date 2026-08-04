@@ -414,6 +414,11 @@ def main() -> int:
     # 候補に挙がったのに採用しなかった企画を残す。新しい企画が載らないとき、
     # そもそも候補に出ていないのか、セール品が足りず落ちたのかを切り分ける
     skipped = []
+    # 開催前の企画ノードは商品がまだ割り当てられておらず、Amazon側が
+    # 別ノードと同じ内容を返すことがある(実例: 8月2〜4週のマンガ週末
+    # セールが3つとも同一の23冊)。既に採用した企画とほぼ同じ顔ぶれなら
+    # 中身のない箱とみなして掲載しない
+    accepted_asin_sets: list[tuple[str, set]] = []
     if candidates:
         print(
             f"企画候補: {len(candidates)}件 "
@@ -463,7 +468,19 @@ def main() -> int:
             # 割引率順に並べ、上位を掲載する
         items.sort(key=sort_key, reverse=True)
         deduped = dedupe_series(items)
-        if len(deduped) >= 3:
+        cand_asins = {i["asin"] for i in deduped}
+        dup_of = next(
+            (
+                name
+                for name, asins in accepted_asin_sets
+                if cand_asins
+                and len(cand_asins & asins) / len(cand_asins | asins) >= 0.9
+            ),
+            None,
+        )
+        if len(deduped) >= 3 and dup_of:
+            skipped.append(f"{cand['name']}(「{dup_of}」と同一内容のため不採用)")
+        elif len(deduped) >= 3:
             campaigns.append(
                 {
                     "node_id": cand["id"],
@@ -476,6 +493,7 @@ def main() -> int:
                     "items": deduped[:items_per_campaign],
                 }
             )
+            accepted_asin_sets.append((cand["name"], cand_asins))
             print(
                 f"企画「{cand['name']}」: "
                 f"{len(deduped[:items_per_campaign])}冊 (対象約{total}冊)"
