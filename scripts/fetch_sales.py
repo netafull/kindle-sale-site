@@ -261,8 +261,7 @@ def dedupe_series(items: list[dict]) -> list[dict]:
 
 
 def parse_items(
-    response: dict, partner_tag: str, min_saving: int,
-    dropped_rates: list | None = None
+    response: dict, partner_tag: str, min_saving: int
 ) -> tuple[list[dict], int]:
     """(掲載対象のリスト, 割引不足で除外した件数) を返す。"""
     items = []
@@ -332,8 +331,6 @@ def parse_items(
         # 割引率とポイント還元率の合算が閾値を下回る本は掲載しない
         if (percent_off or 0) + (points_percent or 0) < min_saving:
             no_discount += 1
-            if dropped_rates is not None:
-                dropped_rates.append((percent_off or 0) + (points_percent or 0))
             continue
 
         contributors = pick(
@@ -417,8 +414,6 @@ def main() -> int:
     # 候補に挙がったのに採用しなかった企画を残す。新しい企画が載らないとき、
     # そもそも候補に出ていないのか、セール品が足りず落ちたのかを切り分ける
     skipped = []
-    # しきい値を設ける意味があるか判断するため、落とした本の割引率を集める
-    all_dropped_rates: list = []
     if candidates:
         print(
             f"企画候補: {len(candidates)}件 "
@@ -433,8 +428,6 @@ def main() -> int:
         # 不採用のとき、検索が商品を返していないのか、返ってきたが
         # 割引が足りないのかを区別できるようにする
         fetched = 0
-        dropped = 0
-        campaign_rates: list = []
         for page in range(1, campaign_max_pages + 1):
             res = search_with_retry(
                 auth,
@@ -449,10 +442,11 @@ def main() -> int:
             fetched += len(
                 pick(res.get("searchResult") or {}, "items", "Items") or []
             )
-            parsed_items, no_disc = parse_items(
-                res, partner_tag, min_saving, campaign_rates
-            )
-            dropped += no_disc
+            # 企画ノードに入っている時点でAmazonがセール対象として括った本
+            # なので、全Kindle本を対象にするジャンル別スキャンのような
+            # 割引率のしきい値はかけない。実データでも、しきい値で落ちていた
+            # 本の99%は「値引きはされているが20%に届かない」本だった
+            parsed_items, _ = parse_items(res, partner_tag, 0)
             for parsed in parsed_items:
                 if parsed["asin"] not in seen:
                     seen.add(parsed["asin"])
@@ -464,10 +458,9 @@ def main() -> int:
             # たまたま値引きの小さい本だと丸ごと捨てられていた
             if page == 1 and not fetched:
                 break
-            # 掲載枠+シリーズ重複で削られる分が集まったら打ち切る
-            if len(items) >= items_per_campaign + 3:
-                break
-        all_dropped_rates.extend(campaign_rates)
+            # しきい値を外したことで序盤のページだけで掲載枠が埋まるように
+            # なったため、冊数では打ち切らない。全ページを見たうえで
+            # 割引率順に並べ、上位を掲載する
         items.sort(key=sort_key, reverse=True)
         deduped = dedupe_series(items)
         if len(deduped) >= 3:
@@ -489,28 +482,12 @@ def main() -> int:
             )
         else:
             skipped.append(
-                f"{cand['name']}(採用{len(deduped)}/取得{fetched}"
-                f"・割引不足{dropped}・対象{total})"
+                f"{cand['name']}(採用{len(deduped)}/取得{fetched}・対象{total})"
             )
 
     if skipped:
         print(f"セール品が足りず不採用: {' / '.join(skipped)}")
-    if all_dropped_rates:
-        buckets = {"0%": 0, "1-9%": 0, "10-14%": 0, "15-19%": 0}
-        for r in all_dropped_rates:
-            if r <= 0:
-                buckets["0%"] += 1
-            elif r < 10:
-                buckets["1-9%"] += 1
-            elif r < 15:
-                buckets["10-14%"] += 1
-            else:
-                buckets["15-19%"] += 1
-        total_dropped = len(all_dropped_rates)
-        dist = " ".join(
-            f"{k}:{v}({round(v / total_dropped * 100)}%)" for k, v in buckets.items()
-        )
-        print(f"企画内で割引不足として落とした{total_dropped}冊の内訳: {dist}")
+
 
     # 企画の初検出日を状態ファイルで管理し、掲載開始日として表示する
     state = {}
