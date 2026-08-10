@@ -59,6 +59,11 @@ summary:hover h2 { color: var(--accent); }
 details > .grid, details > .empty { margin-top: 12px; }
 .grid { display: grid; gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+/* Auto ads廃止に伴う手動広告枠。グリッド内ではカードの1つとして、
+   ヘッダー直下では単独の帯として収まるよう幅を960pxに揃える */
+.ad-slot { max-width: 960px; margin: 0 auto; background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px; text-align: center; overflow: hidden; }
 .book { display: flex; gap: 12px; background: var(--card);
   border: 1px solid var(--line); border-radius: 10px; padding: 12px;
   text-decoration: none; color: var(--text); }
@@ -154,6 +159,43 @@ def render_book(item: dict) -> str:
 </a>"""
 
 
+def render_ad_slot() -> str:
+    """手動設置のディスプレイ広告ユニット。
+
+    Auto adsはサブドメイン単位でヴィネット/アンカー広告を無効化できな
+    かったため除外し、代わりにこの広告ユニット1種類をヘッダー直下と
+    カード一覧に手動で配置する。adsense_ad_slotが未設定なら何も出さない
+    """
+    ad_slot = CONFIG.get("adsense_ad_slot", "")
+    adsense_id = CONFIG.get("adsense_client_id", "")
+    if not ad_slot or not adsense_id:
+        return ""
+    return f"""<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="{esc(adsense_id)}"
+     data-ad-slot="{esc(ad_slot)}"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({{}});
+</script>
+</div>"""
+
+
+def intersperse_ads(cards: list[str], every: int = 8) -> str:
+    """カード一覧に広告枠を8件おきに挟み込む。"""
+    ad = render_ad_slot()
+    if not ad:
+        return "\n".join(cards)
+    out = []
+    for i, c in enumerate(cards, 1):
+        out.append(c)
+        if i % every == 0:
+            out.append(ad)
+    return "\n".join(out)
+
+
 def generate_html(data: dict) -> str:
     fetched = datetime.datetime.fromisoformat(data["fetched_at"]).astimezone(
         datetime.timezone(datetime.timedelta(hours=9))
@@ -189,7 +231,7 @@ def generate_html(data: dict) -> str:
         # グリッド末尾に「続きを見る」カードを置くぶん、本のカードを
         # 1つ減らして列数(最大3)の倍数を保ち、末尾行が欠けないようにする
         shown = c["items"][:-1] if len(c["items"]) % 3 == 0 else c["items"]
-        books = "\n".join(render_book(b) for b in shown)
+        books = intersperse_ads([render_book(b) for b in shown])
         # 上部のボタンは本を見終わった時点では画面外に流れているため、
         # 読了直後の「もっと見たい」を受け止める導線として機能する
         rest = c["total"] - len(shown) if c.get("total") else 0
@@ -216,7 +258,7 @@ def generate_html(data: dict) -> str:
         )
 
     if others:
-        books = "\n".join(render_book(b) for b in others)
+        books = intersperse_ads([render_book(b) for b in others])
         sections.append(
             '<details open id="others">\n'
             f'<summary><h2>その他のセール本 ({len(others)}冊)</h2></summary>\n'
@@ -276,6 +318,7 @@ def generate_html(data: dict) -> str:
         if adsense_id
         else ""
     )
+    header_ad = render_ad_slot()
 
     ga_id = CONFIG.get("ga_measurement_id", "")
     ga_tag = (
@@ -355,6 +398,7 @@ gtag('config', '{esc(ga_id)}');
 <p>{esc(CONFIG["site_description"])} ｜ 割引率とポイント還元率の合計が{data["min_saving_percent"]}%以上の本を掲載 ｜ 最終更新: {updated}</p>
 {related_html}
 </header>
+{header_ad}
 <main>
 {chr(10).join(sections)}
 {about_html}
