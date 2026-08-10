@@ -119,6 +119,8 @@ def esc(s):
     return html.escape(s or "", quote=True)
 
 
+# AdSenseダッシュボードではvignette(全画面)広告をサブドメイン単位で
+# 無効化できないため、リンクごとにdata-google-vignette="false"を付与する
 def render_book(item: dict) -> str:
     off = item.get("percent_off")
     off_html = ""
@@ -141,7 +143,7 @@ def render_book(item: dict) -> str:
         pct = item.get("points_percent")
         pct_txt = f"{pct}%還元" if pct else "還元"
         points_html = f'<div class="points">+{item["points"]}pt ({pct_txt})</div>'
-    return f"""<a class="book" href="{esc(item["url"])}" target="_blank" rel="noopener sponsored">
+    return f"""<a class="book" href="{esc(item["url"])}" data-google-vignette="false" target="_blank" rel="noopener sponsored">
   {img_html}
   <div>
     <div class="t">{esc(item["title"])}</div>
@@ -194,7 +196,7 @@ def generate_html(data: dict) -> str:
         rest_txt = f"ほか約{rest:,}冊" if rest > 0 else "対象本"
         books += (
             f'\n<a class="book more" href="{esc(c["url"])}" '
-            f'target="_blank" rel="noopener sponsored">'
+            f'data-google-vignette="false" target="_blank" rel="noopener sponsored">'
             f'<span class="more-i">🛒</span>'
             f'<div><div class="more-t">{rest_txt}を<br>Amazonで見る</div></div>'
             f"</a>"
@@ -207,7 +209,7 @@ def generate_html(data: dict) -> str:
             f'<summary><h2>🔥 {esc(c["name"])}'
             f'<span class="hmeta">{head_meta(c)}</span></h2></summary>\n'
             f'<a class="cmeta-link" href="{esc(c["url"])}" '
-            f'target="_blank" rel="noopener sponsored">'
+            f'data-google-vignette="false" target="_blank" rel="noopener sponsored">'
             f'🛒 このセールの対象本をAmazonですべて見る</a>\n'
             f'<div class="grid">\n{books}\n</div>\n'
             f'</details>'
@@ -247,7 +249,7 @@ def generate_html(data: dict) -> str:
     related_html = ""
     if related:
         links = "\n".join(
-            f'<a href="{esc(s["url"])}">{esc(s["name"])}'
+            f'<a href="{esc(s["url"])}" data-google-vignette="false">{esc(s["name"])}'
             + (f'<span class="lbl"> {esc(s["desc"])}</span>' if s.get("desc") else "")
             + "</a>"
             for s in related
@@ -260,7 +262,7 @@ def generate_html(data: dict) -> str:
     # 各サイトに複製せずリンクで参照する
     policy_url = CONFIG.get("policy_url", "")
     policy_link = (
-        f'｜ <a href="{esc(policy_url)}" style="color:inherit">メディアポリシー</a>\n'
+        f'｜ <a href="{esc(policy_url)}" data-google-vignette="false" style="color:inherit">メディアポリシー</a>\n'
         if policy_url
         else ""
     )
@@ -349,7 +351,7 @@ gtag('config', '{esc(ga_id)}');
 </head>
 <body>
 <header>
-<h1><a href="./"><img src="assets/logo.png" alt="" width="32" height="32">{esc(CONFIG["site_title"])}</a></h1>
+<h1><a href="./" data-google-vignette="false"><img src="assets/logo.png" alt="" width="32" height="32">{esc(CONFIG["site_title"])}</a></h1>
 <p>{esc(CONFIG["site_description"])} ｜ 割引率とポイント還元率の合計が{data["min_saving_percent"]}%以上の本を掲載 ｜ 最終更新: {updated}</p>
 {related_html}
 </header>
@@ -361,7 +363,7 @@ gtag('config', '{esc(ga_id)}');
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
 Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
 当サイトはアクセス解析のためGoogle Analyticsを利用しています(データは匿名で収集され、Googleに送信されます)。
-{policy_link}｜ <a href="rss.xml" style="color:inherit">RSS</a>
+{policy_link}｜ <a href="rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
 {related_html}
 </footer>
 </body>
