@@ -185,7 +185,10 @@ def render_ad_slot() -> str:
 </div>"""
 
 
-def intersperse_ads(cards: list[str], every: int = 16) -> str:
+AD_EVERY = 16
+
+
+def intersperse_ads(cards: list[str], every: int = AD_EVERY) -> str:
     """カード一覧に広告枠を16件おきに挟み込む。"""
     ad = render_ad_slot()
     if not ad:
@@ -230,9 +233,13 @@ def generate_html(data: dict) -> str:
     if campaigns:
         sections.append('<p class="group">開催中のセール企画 (新着順)</p>')
     for i, c in enumerate(campaigns):
-        # グリッド末尾に「続きを見る」カードを置くぶん、本のカードを
-        # 1つ減らして列数(最大3)の倍数を保ち、末尾行が欠けないようにする
-        shown = c["items"][:-1] if len(c["items"]) % 3 == 0 else c["items"]
+        # グリッド末尾に「続きを見る」カードを、途中に広告枠を置くぶん、
+        # 本のカードを削って列数(最大3)の倍数を保ち、末尾行が欠けないよう
+        # にする。広告枠もグリッドの1マスを占めるので冊数の計算に含める
+        n = len(c["items"])
+        while n > 1 and (n + n // AD_EVERY + 1) % 3 != 0:
+            n -= 1
+        shown = c["items"][:n]
         books = intersperse_ads([render_book(b) for b in shown])
         # 上部のボタンは本を見終わった時点では画面外に流れているため、
         # 読了直後の「もっと見たい」を受け止める導線として機能する
