@@ -398,6 +398,31 @@ def load_state() -> dict:
         sys.exit(1)
 
 
+def notify_ntfy(topic: str, title: str, message: str, click_url: str = "") -> None:
+    """新着企画をntfy(https://ntfy.sh/)でプッシュ通知する。
+
+    トピック名はGitHub Secretsで管理し、リポジトリには書かない(公開
+    リポジトリなので、トピック名が漏れると誰でも通知を送りつけられる)。
+    通知の失敗はサイト更新そのものに影響させたくないので例外は投げない
+    """
+    if not topic:
+        return
+    payload: dict[str, str] = {"topic": topic, "title": title, "message": message}
+    if click_url:
+        payload["click"] = click_url
+    req = urllib.request.Request(
+        "https://ntfy.sh/",
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10):
+            pass
+    except (urllib.error.URLError, OSError) as e:
+        print(f"[warn] ntfy通知に失敗しました: {e}", file=sys.stderr)
+
+
 def main() -> int:
     credential_id = os.environ.get("CREATORSAPI_CREDENTIAL_ID")
     credential_secret = os.environ.get("CREATORSAPI_CREDENTIAL_SECRET")
@@ -549,7 +574,10 @@ def main() -> int:
     today = today_dt.isoformat()
     now_iso = now.isoformat(timespec="seconds")
     new_state = {}
+    new_campaigns: list[str] = []
     for c in campaigns:
+        if c["node_id"] not in state:
+            new_campaigns.append(c["name"])
         entry = state.get(c["node_id"]) or {}
         first_seen = entry.get("first_seen") or today
         # 日付だけではRSSのpubDateに使えないため実時刻も残す。
@@ -662,6 +690,16 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"saved: {OUTPUT_PATH}")
+
+    if new_campaigns:
+        names = "、".join(new_campaigns)
+        notify_ntfy(
+            os.environ.get("NTFY_TOPIC", ""),
+            "電書ポチ: 新しいセール企画",
+            names,
+            click_url=config.get("site_url", ""),
+        )
+
     return 0
 
 

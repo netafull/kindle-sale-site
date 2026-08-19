@@ -45,6 +45,7 @@ jobs:
           CREATORSAPI_CREDENTIAL_ID: ${{ secrets.CREATORSAPI_CREDENTIAL_ID }}
           CREATORSAPI_CREDENTIAL_SECRET: ${{ secrets.CREATORSAPI_CREDENTIAL_SECRET }}
           CREATORSAPI_PARTNER_TAG: ${{ secrets.CREATORSAPI_PARTNER_TAG }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: python scripts/fetch_sales.py
 
       - name: Generate site
