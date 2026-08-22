@@ -692,10 +692,15 @@ def main() -> int:
     print(f"saved: {OUTPUT_PATH}")
 
     if new_campaigns:
-        names = "、".join(new_campaigns)
+        # 件数に上限を設けないと、状態ファイルが空/破損から復旧した直後などに
+        # 候補全件(最大40件)が「新着」扱いになり、ntfyのメッセージサイズ上限に
+        # 引っかかって通知自体が失敗しうる(家電ポチと同じ上限の掛け方)
+        shown = new_campaigns[:5]
+        rest = len(new_campaigns) - len(shown)
+        names = "、".join(shown) + (f"(ほか{rest}件)" if rest > 0 else "")
         notify_ntfy(
             os.environ.get("NTFY_TOPIC", ""),
-            "電書ポチ: 新しいセール企画",
+            f"電書ポチ: 新しいセール企画{len(new_campaigns)}件",
             names,
             click_url=config.get("site_url", ""),
         )
