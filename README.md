@@ -2,7 +2,7 @@
 
 サイト名にAmazon商標(Kindle等)を使うことはアソシエイト規約で禁止されているため、サイト名は「電書ポチ」。説明文中でKindleに言及するのは問題ない。
 
-セール中のKindle本をAmazon Creators API から取得し、静的サイトとして自動公開するツールです。GitHub Actionsで1時間ごとに自動更新されます。
+セール中のKindle本をAmazon Creators API から取得し、静的サイトとして自動公開するツールです。Cloud Schedulerから2時間ごとに起動され、GitHub Actionsで自動更新されます。
 
 2026年にAmazonが旧PA-API v5(AWS Signature V4認証)を廃止し、OAuth2認証のCreators APIに全面移行したため、本ツールもCreators API前提で実装しています。
 
