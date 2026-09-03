@@ -1,10 +1,17 @@
 {
+  "222142856051": {
+    "first_seen": "2026-09-03",
+    "first_seen_at": "2026-09-03T19:41:15+09:00",
+    "last_seen": "2026-09-03",
+    "name": "高額書がお得に買える！翔泳社の対象Kindle本が50%OFF",
+    "notified": false
+  },
   "222053438051": {
     "first_seen": "2026-09-03",
     "first_seen_at": "2026-09-03T17:41:26+09:00",
     "last_seen": "2026-09-03",
     "name": "小学館 漫祭2026 第1弾",
-    "notified": false
+    "notified": true
   },
   "221888658051": {
     "first_seen": "2026-08-31",
