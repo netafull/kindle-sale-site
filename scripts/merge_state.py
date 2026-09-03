@@ -8,6 +8,8 @@
 マージ規則:
   - 両方に存在する企画ノードID: first_seenは古い方(履歴を最大限保持)、
     last_seenは新しい方を採用
+  - notified(通知済みフラグ)はどちらかが立っていれば立てる
+    (落とすと、既に通知した企画の通知がもう一度飛ぶ)
   - 片方にしかない企画ノードID: そのまま残す
 
 .gitattributes と .git/config への登録は scripts/setup_merge_driver.sh が行う。
@@ -49,6 +51,9 @@ def main() -> int:
             # last_seenは新しい方を優先(猶予期間の判定を正しく保つ)
             if entry.get("last_seen", "") > merged[key].get("last_seen", ""):
                 merged[key]["last_seen"] = entry["last_seen"]
+            # 通知済みフラグは立っている方を優先(同じ企画の通知の重複を防ぐ)
+            if entry.get("notified") or merged[key].get("notified"):
+                merged[key]["notified"] = True
 
     # gitは第1引数のファイルにマージ結果が書かれていることを期待する
     Path(current_path).write_text(

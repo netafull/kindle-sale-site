@@ -42,6 +42,9 @@ STATE_PATH = ROOT / "data" / "campaign_state.json"
 # 検出されなくなった企画の状態を保持する日数。検出条件を一時的に
 # 満たさなくなっただけで初検出日がリセットされるのを防ぐ猶予期間
 STATE_GRACE_DAYS = 14
+# 送信予定の通知の置き場。実際の送信はサイトが公開されたあとに
+# scripts/notify.py が行う。コミットしない一時ファイル
+NOTIFY_PATH = ROOT / "data" / "pending_notification.json"
 
 RESOURCES = [
     "itemInfo.title",
@@ -199,6 +202,21 @@ def get_campaign_candidates(access_token: str, partner_tag: str) -> list[dict]:
     return candidates
 
 
+# リトライを使い切って取得を諦めた回数。企画が0冊になったとき
+# 「本当にセール品が無い(開催前・終了済み)」のか「APIが落ちて取れなかった」
+# のかを区別するために数える。区別できないと、掲載中の企画を取りこぼしで
+# 落としたまま公開してしまうし、不採用ログを見ても原因が分からない
+GIVE_UPS = 0
+
+
+def give_up(label: str, reason: str) -> dict:
+    """リトライ上限に達したことを記録する。戻り値は従来どおり空のdict。"""
+    global GIVE_UPS
+    GIVE_UPS += 1
+    print(f"[warn] {label}: {reason}", file=sys.stderr)
+    return {}
+
+
 def search_with_retry(
     auth: dict,
     partner_tag: str,
@@ -232,19 +250,50 @@ def search_with_retry(
             if e.code == 429 and attempt < 2:
                 time.sleep(5 * (attempt + 1))
                 continue
-            print(
-                f"[warn] {label}: HTTP {e.code} "
-                f"{e.read().decode('utf-8', 'replace')[:300]}",
-                file=sys.stderr,
+            return give_up(
+                label,
+                f"HTTP {e.code} {e.read().decode('utf-8', 'replace')[:300]}",
             )
-            return {}
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             if attempt < 2:
                 time.sleep(5 * (attempt + 1))
                 continue
-            print(f"[warn] {label}: {e}", file=sys.stderr)
-            return {}
-    return {}
+            return give_up(label, str(e))
+    return give_up(label, "リトライ上限に達しました")
+
+
+def get_candidates_with_retry(auth: dict, partner_tag: str) -> list[dict]:
+    """get_campaign_candidatesを401/429/ネットワークエラーに耐性を持たせて呼ぶ。
+
+    ここは企画セクション全体の入口で、1回失敗しただけで掲載企画が
+    丸ごと0件になる。商品検索と同じだけ粘る必要がある
+    """
+    for attempt in range(3):
+        try:
+            return get_campaign_candidates(auth["token"], partner_tag)
+        except urllib.error.HTTPError as e:
+            if e.code == 401 and attempt < 2:
+                try:
+                    auth["token"] = get_access_token(auth["id"], auth["secret"])
+                except (urllib.error.URLError, TimeoutError, OSError):
+                    pass
+                continue
+            if e.code == 429 and attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            give_up(
+                "企画一覧の取得",
+                f"HTTP {e.code} {e.read().decode('utf-8', 'replace')[:300]}",
+            )
+            return []
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            give_up("企画一覧の取得", str(e))
+            return []
+    give_up("企画一覧の取得", "リトライ上限に達しました")
+    return []
 
 
 def dedupe_series(items: list[dict]) -> list[dict]:
@@ -398,29 +447,21 @@ def load_state() -> dict:
         sys.exit(1)
 
 
-def notify_ntfy(topic: str, title: str, message: str, click_url: str = "") -> None:
-    """新着企画をntfy(https://ntfy.sh/)でプッシュ通知する。
+def write_pending_notifications(notifications: list[dict]) -> None:
+    """送信予定の通知を書き出す。送信するのはデプロイ後のscripts/notify.py。
 
-    トピック名はGitHub Secretsで管理し、リポジトリには書かない(公開
-    リポジトリなので、トピック名が漏れると誰でも通知を送りつけられる)。
-    通知の失敗はサイト更新そのものに影響させたくないので例外は投げない
+    以前はここで直接ntfyへ送っていたが、この後に控えるサイト生成・状態の
+    コミット・Pagesデプロイのどれかが失敗すると「通知は届いたのにサイトは
+    前回のまま」になっていた。送るものが無いときは前回の残骸を送って
+    しまわないようファイルごと消す
     """
-    if not topic:
+    if not notifications:
+        NOTIFY_PATH.unlink(missing_ok=True)
         return
-    payload: dict[str, str] = {"topic": topic, "title": title, "message": message}
-    if click_url:
-        payload["click"] = click_url
-    req = urllib.request.Request(
-        "https://ntfy.sh/",
-        data=json.dumps(payload).encode("utf-8"),
-        method="POST",
-        headers={"Content-Type": "application/json"},
+    NOTIFY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    NOTIFY_PATH.write_text(
+        json.dumps(notifications, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    try:
-        with urllib.request.urlopen(req, timeout=10):
-            pass
-    except (urllib.error.URLError, OSError) as e:
-        print(f"[warn] ntfy通知に失敗しました: {e}", file=sys.stderr)
 
 
 def main() -> int:
@@ -466,11 +507,7 @@ def main() -> int:
 
     # --- セール企画 (Kindle Eventsの子ノードから自動発見) ---
     campaigns = []
-    try:
-        candidates = get_campaign_candidates(auth["token"], partner_tag)
-    except (urllib.error.URLError, TimeoutError, OSError) as e:
-        print(f"[warn] 企画一覧の取得に失敗: {e}", file=sys.stderr)
-        candidates = []
+    candidates = get_candidates_with_retry(auth, partner_tag)
     # 候補に挙がったのに採用しなかった企画を残す。新しい企画が載らないとき、
     # そもそも候補に出ていないのか、セール品が足りず落ちたのかを切り分ける
     skipped = []
@@ -479,6 +516,10 @@ def main() -> int:
     # セールが3つとも同一の23冊)。既に採用した企画とほぼ同じ顔ぶれなら
     # 中身のない箱とみなして掲載しない
     accepted_asin_sets: list[tuple[str, set]] = []
+    # 取得に失敗したせいで、前から追っていた企画を落とそうとしている場合を
+    # 控える。「企画が全部消えたら中止」だけでは、30件中25件が取りこぼしで
+    # 消えても5件残っていれば公開されてしまう(家電ポチと同じ穴)
+    lost: list[str] = []
     if candidates:
         print(
             f"企画候補: {len(candidates)}件 "
@@ -493,6 +534,7 @@ def main() -> int:
         # 不採用のとき、検索が商品を返していないのか、返ってきたが
         # 割引が足りないのかを区別できるようにする
         fetched = 0
+        give_ups_before = GIVE_UPS
         for page in range(1, campaign_max_pages + 1):
             res = search_with_retry(
                 auth,
@@ -559,13 +601,44 @@ def main() -> int:
                 f"{len(deduped[:items_per_campaign])}冊 (対象約{total}冊)"
             )
         else:
-            skipped.append(
-                f"{cand['name']}(採用{len(deduped)}/取得{fetched}・対象{total})"
-            )
+            give_ups_here = GIVE_UPS - give_ups_before
+            reason = f"採用{len(deduped)}/取得{fetched}・対象{total}"
+            if give_ups_here:
+                # 「取得0」の理由がAPI障害だったことをログに残す。これが無いと
+                # 開催前・終了済みの企画と見分けがつかない
+                reason += f"・API失敗{give_ups_here}回"
+                # 前から追っていた企画が取りこぼしで落ちるのは実害がある
+                # (サイトから消え、RSSからも消える)。新顔なら次回拾えばよい
+                if cand["id"] in state:
+                    lost.append(f"{cand['name']}({give_ups_here}回失敗)")
+            skipped.append(f"{cand['name']}({reason})")
 
     if skipped:
         print(f"セール品が足りず不採用: {' / '.join(skipped)}")
 
+    if lost:
+        # 掲載中の企画を取得失敗で落とすくらいなら、前回の公開内容を残す。
+        # 「最終更新」の時刻が古いままになるので、読者からも古さは分かる
+        print(
+            "[error] 取得に失敗して掲載中の企画が落ちようとしています: "
+            + " / ".join(lost)
+            + "。前回の公開内容を上書きしないよう中止します",
+            file=sys.stderr,
+        )
+        return 1
+
+    # 企画が丸ごと0件になるのは、企画一覧の取得か商品検索がまとめて失敗した
+    # ときに起きる。この後の「全企画・その他とも0冊」ガードは、ジャンル別の
+    # その他のセール本が残っていると素通りしてしまうため、企画セクションと
+    # RSSが空のサイトがそのまま公開されてしまう。前回までの記録があるなら、
+    # 公開せずに前回のデプロイを残す方が安全
+    if state and not campaigns:
+        print(
+            f"[error] 前回まで{len(state)}件の記録があった企画が0件になりました。"
+            "API障害の可能性が高いため中止します",
+            file=sys.stderr,
+        )
+        return 1
 
     # 企画の初検出日(stateはAPIを叩く前にload_state()で読んである)を
     # 掲載開始日として表示する
@@ -576,9 +649,23 @@ def main() -> int:
     new_state = {}
     new_campaigns: list[str] = []
     for c in campaigns:
-        if c["node_id"] not in state:
-            new_campaigns.append(c["name"])
-        entry = state.get(c["node_id"]) or {}
+        entry = state.get(c["node_id"])
+        if entry is None:
+            # 初めて採用された企画。ここではまだ通知しない。
+            # 開催前の企画ノードは商品がまだ割り当てられておらず、1回だけ
+            # 採用されて次の実行では0冊に戻ることがある(2026-09-02の
+            # 「Kindle本 199円セール」が実例。通知直後にサイトから消えた)。
+            # 2回目に採用されたときに送れば、この空振りを拾わずに済む
+            notified = False
+        else:
+            # notifiedキーが無いのはこの仕組みを入れる前からある企画。
+            # 導入直後に既存の全企画へ一斉に通知が飛ぶのを避けるため、
+            # 通知済みとみなす
+            notified = entry.get("notified", True)
+            if not notified:
+                new_campaigns.append(c["name"])
+                notified = True
+        entry = entry or {}
         first_seen = entry.get("first_seen") or today
         # 日付だけではRSSのpubDateに使えないため実時刻も残す。
         # 時刻を持たない既存エントリは、前日夜と紛れないよう正午とみなす
@@ -592,6 +679,7 @@ def main() -> int:
             "first_seen_at": first_seen_at,
             "last_seen": today,
             "name": c["name"],
+            "notified": notified,
         }
 
     # 今回検出されなかった企画も猶予期間内は状態を保持する。
@@ -691,6 +779,7 @@ def main() -> int:
     )
     print(f"saved: {OUTPUT_PATH}")
 
+    notifications = []
     if new_campaigns:
         # 件数に上限を設けないと、状態ファイルが空/破損から復旧した直後などに
         # 候補全件(最大40件)が「新着」扱いになり、ntfyのメッセージサイズ上限に
@@ -698,12 +787,14 @@ def main() -> int:
         shown = new_campaigns[:5]
         rest = len(new_campaigns) - len(shown)
         names = "、".join(shown) + (f"(ほか{rest}件)" if rest > 0 else "")
-        notify_ntfy(
-            os.environ.get("NTFY_TOPIC", ""),
-            f"電書ポチ: 新しいセール企画{len(new_campaigns)}件",
-            names,
-            click_url=config.get("site_url", ""),
+        notifications.append(
+            {
+                "title": f"電書ポチ: 新しいセール企画{len(new_campaigns)}件",
+                "message": names,
+                "click": config.get("site_url", ""),
+            }
         )
+    write_pending_notifications(notifications)
 
     return 0
 
