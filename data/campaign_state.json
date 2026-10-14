@@ -97,13 +97,6 @@
     "name": "Kindle本 199円セール",
     "notified": true
   },
-  "222407504051": {
-    "first_seen": "2026-09-24",
-    "first_seen_at": "2026-09-24T19:41:07+09:00",
-    "last_seen": "2026-10-15",
-    "name": "Kindle 秋の特別セール",
-    "notified": true
-  },
   "222407374051": {
     "first_seen": "2026-09-24",
     "first_seen_at": "2026-09-24T19:41:07+09:00",
@@ -212,8 +205,15 @@
   "221079965051": {
     "first_seen": "2026-08-28",
     "first_seen_at": "2026-08-28T04:49:28+09:00",
-    "last_seen": "2026-10-14",
+    "last_seen": "2026-10-15",
     "name": "GANMA!夏休みフィナーレセール",
+    "notified": true
+  },
+  "222407504051": {
+    "first_seen": "2026-09-24",
+    "first_seen_at": "2026-09-24T19:41:07+09:00",
+    "last_seen": "2026-10-15",
+    "name": "Kindle 秋の特別セール",
     "notified": true
   },
   "220829167051": {
