@@ -11,7 +11,7 @@ on:
   # 間引きが原因と確定している。workflow_dispatch はこの間引きの対象外。
   #
   # 発火元: Cloud Scheduler ジョブ densho-pochi-update
-  #         (GCPプロジェクト manga-rss / asia-northeast1 / cron "37 */2 * * *" UTC)
+  #         (GCPプロジェクト manga-rss / asia-northeast1 / cron "37 */4 * * *" UTC。2026-10-26に2時間間隔から4時間間隔へ変更)
   #
   # **間隔を変えたら config.json の文言も必ず直すこと。**
   # サイトのヘッダーと「〜について」セクションに更新頻度を書いており
