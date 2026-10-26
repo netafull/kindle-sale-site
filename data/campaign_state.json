@@ -1,11 +1,4 @@
 {
-  "223917549051": {
-    "first_seen": "2026-10-27",
-    "first_seen_at": "2026-10-27T01:41:30+09:00",
-    "last_seen": "2026-10-27",
-    "name": "Kindle本 499円セール",
-    "notified": false
-  },
   "223596013051": {
     "first_seen": "2026-10-22",
     "first_seen_at": "2026-10-22T15:41:16+09:00",
@@ -209,18 +202,25 @@
     "name": "集英社 夏デジ2026",
     "notified": true
   },
+  "220828100051": {
+    "first_seen": "2026-08-13",
+    "first_seen_at": "2026-08-13T02:09:41+09:00",
+    "last_seen": "2026-10-27",
+    "name": "Kindle本 99円セール",
+    "notified": true
+  },
+  "223917549051": {
+    "first_seen": "2026-10-27",
+    "first_seen_at": "2026-10-27T01:41:30+09:00",
+    "last_seen": "2026-10-27",
+    "name": "Kindle本 499円セール",
+    "notified": false
+  },
   "223897701051": {
     "first_seen": "2026-10-26",
     "first_seen_at": "2026-10-26T19:41:19+09:00",
     "last_seen": "2026-10-26",
     "name": "本のビッグセール2026冬",
-    "notified": true
-  },
-  "220828100051": {
-    "first_seen": "2026-08-13",
-    "first_seen_at": "2026-08-13T02:09:41+09:00",
-    "last_seen": "2026-10-26",
-    "name": "Kindle本 99円セール",
     "notified": true
   },
   "222420673051": {
