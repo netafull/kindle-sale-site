@@ -793,29 +793,107 @@ def parse_since_date(since: str | None) -> datetime.date | None:
         return None
 
 
+def usable_percent_off(b: dict) -> float | None:
+    """割引率が確認できる本ならその割引率、除外対象なら None。
+
+    manga_books と同じ除外条件: price が MANGA_MIN_PRICE 未満の異常値
+    (¥11 で 99%OFF など)、定価(list_price)なし、割引率が数値でない/0以下は除く。
+    campaign_max_percent_off と campaign_sample_titles が同じ判定を共有する
+    """
+    pct = b.get("percent_off")
+    if (
+        isinstance(pct, bool)
+        or not isinstance(pct, (int, float))
+        or (b.get("price") or 0) < MANGA_MIN_PRICE
+        or not b.get("list_price")
+        or pct <= 0
+    ):
+        return None
+    return pct
+
+
 def campaign_max_percent_off(items: list[dict]) -> int | None:
     """企画の items のうち最大の割引率(整数)。該当が無ければ None。
 
     根拠: sales.json の campaigns[].items は企画の全商品ではなく、
     割引率+ポイント還元率の降順で上位 items_per_campaign 件に切った一部。
     なので「最大」は保存されている範囲での実測値(企画全体の真の最大ではない)。
-    manga_books と同じ除外条件: price が MANGA_MIN_PRICE 未満の異常値
-    (¥11 で 99%OFF など)、定価(list_price)なし、割引率が数値でない/0以下は数えない
+    除外条件は usable_percent_off を参照
     """
     best = None
     for b in items or []:
-        pct = b.get("percent_off")
-        if (
-            isinstance(pct, bool)
-            or not isinstance(pct, (int, float))
-            or (b.get("price") or 0) < MANGA_MIN_PRICE
-            or not b.get("list_price")
-            or pct <= 0
-        ):
+        pct = usable_percent_off(b)
+        if pct is None:
             continue
         if best is None or pct > best:
             best = pct
     return None if best is None else int(round(best))
+
+
+# 先頭/末尾の【合本版】【電子特典付き】のような【…】
+BRACKET_EDGE_RE = re.compile(r"^【[^】]*】|【[^】]*】$")
+# 末尾の括弧書き(レーベル名・「（１）」のような巻数)。全角/半角どちらも
+TRAILING_PAREN_RE = re.compile(r"[（(][^（）()]*[）)]$")
+# 末尾の巻数表記: 「全17巻」「第3巻」「 3巻」「全巻」、区切り空白つきの数字だけ(「 3」「　３」)
+# 「C3」のように空白なしでタイトルに溶けている数字は巻数とみなさず残す
+TRAILING_VOLUME_RES = (
+    re.compile(r"[\s　]*全[0-9０-９]*巻$"),
+    re.compile(r"[\s　]*第?[0-9０-９]+巻$"),
+    re.compile(r"[\s　]+[0-9０-９]+$"),
+)
+# 2行目に添える作品名の最大文字数(「…」を含む)
+SERIES_TITLE_MAX_LEN = 18
+
+
+def series_title(title: str) -> str:
+    """本のタイトルを作品名(シリーズ名)に整える。
+
+    レーベル名の括弧書き、【合本版】などの【…】、巻数表記を落とし、
+    SERIES_TITLE_MAX_LEN 文字を超えたら末尾を「…」にする。
+    落とした結果が空になるなら元のタイトル(前後の空白だけ除いたもの)を使う
+    """
+    original = (title or "").strip()
+    cur = original
+    while True:
+        prev = cur
+        cur = BRACKET_EDGE_RE.sub("", cur).strip()
+        cur = TRAILING_PAREN_RE.sub("", cur).strip()
+        for rx in TRAILING_VOLUME_RES:
+            cur = rx.sub("", cur).strip()
+        if cur == prev:
+            break
+    result = cur or original
+    if len(result) > SERIES_TITLE_MAX_LEN:
+        result = result[: SERIES_TITLE_MAX_LEN - 1] + "…"
+    return result
+
+
+def campaign_sample_titles(items: list[dict], limit: int = 2) -> list[str]:
+    """企画の代表作品名(漫画ポチが企画名の下に小さく添える)。0〜limit件。
+
+    割引率の高い順(同率は元の並びのまま)に series_title して、同じ作品の
+    別巻は1つにまとめる。除外条件は usable_percent_off(割引率が確認できない本は
+    候補にしない。候補が無ければ空リスト)。titleが空・文字列でない本は無視する
+    """
+    if limit <= 0:
+        return []
+    ranked = []
+    for b in items or []:
+        pct = usable_percent_off(b)
+        title = b.get("title")
+        if pct is None or not isinstance(title, str) or not title.strip():
+            continue
+        ranked.append((pct, title))
+    ranked.sort(key=lambda r: r[0], reverse=True)  # 安定ソートなので同率は元の順
+    result: list[str] = []
+    for _, title in ranked:
+        name = series_title(title)
+        if name in result:
+            continue
+        result.append(name)
+        if len(result) >= limit:
+            break
+    return result
 
 
 def generate_sale_campaigns(data: dict, today: datetime.date | None = None) -> list[dict]:
@@ -858,6 +936,7 @@ def generate_sale_campaigns(data: dict, today: datetime.date | None = None) -> l
             "since": since or None,
             "is_manga": is_manga_campaign_name(c.get("name") or ""),
             "max_percent_off": campaign_max_percent_off(c.get("items")),
+            "sample_titles": campaign_sample_titles(c.get("items")),
         }
     # since の新しい順(無ければ最後)→ マンガ企画を先頭へ。安定ソートを2回かける
     rows = sorted(found.values(), key=lambda r: r["since"] or "", reverse=True)

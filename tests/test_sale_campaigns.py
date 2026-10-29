@@ -111,6 +111,7 @@ class SaleCampaigns(unittest.TestCase):
                     "since": "2026-07-30T01:00:00+00:00",
                     "is_manga": True,
                     "max_percent_off": 50,
+                    "sample_titles": ["本X9"],
                 }
             ],
         )
@@ -288,6 +289,146 @@ class SaleCampaigns(unittest.TestCase):
             {"fetched_at": "t", "campaigns": with_extra, "others": [], "manga_items": manga}
         )
         self.assertEqual(c["manga_books"], a["manga_books"])
+
+
+def titled(title, percent_off=50, **over):
+    b = book("T", percent_off)
+    b["title"] = title
+    b.update(over)
+    return b
+
+
+class SeriesTitle(unittest.TestCase):
+    def test_removes_label_and_volume(self):
+        self.assertEqual(
+            generate_site.series_title("平和の国の島崎へ（１） (モーニングコミックス)"), "平和の国の島崎へ"
+        )
+
+    def test_removes_edge_brackets_and_total_volumes(self):
+        self.assertEqual(
+            generate_site.series_title("【合本版】C3　-シーキューブ-　全17巻 (富士見ファンタジア文庫)"),
+            "C3\u3000-シーキューブ-",
+        )
+        self.assertEqual(generate_site.series_title("鬼滅の刃 【電子特典付き】"), "鬼滅の刃")
+        self.assertEqual(generate_site.series_title("【合本版】【電子特典付き】鬼滅の刃"), "鬼滅の刃")
+
+    def test_volume_patterns(self):
+        for t in ["進撃の巨人(2)", "進撃の巨人（２）", "進撃の巨人 3巻", "進撃の巨人 第3巻",
+                  "進撃の巨人第３巻", "進撃の巨人 3", "進撃の巨人　３", "進撃の巨人 全巻",
+                  "進撃の巨人 (講談社コミックス) (34)"]:
+            self.assertEqual(generate_site.series_title(t), "進撃の巨人", t)
+
+    def test_repeated_labels(self):
+        self.assertEqual(generate_site.series_title("作品名 (A) (B) (C)"), "作品名")
+
+    def test_keeps_digits_glued_to_title(self):
+        self.assertEqual(generate_site.series_title("C3"), "C3")
+        self.assertEqual(generate_site.series_title("Re:ゼロから始める異世界生活2"), "Re:ゼロから始める異世界生活2")
+
+    def test_plain_title_is_unchanged(self):
+        self.assertEqual(generate_site.series_title("アーキテクトの教科書"), "アーキテクトの教科書")
+
+    def test_falls_back_to_original_when_empty(self):
+        self.assertEqual(generate_site.series_title("【合本版】"), "【合本版】")
+        self.assertEqual(generate_site.series_title("  (1)  "), "(1)")
+        self.assertEqual(generate_site.series_title("　"), "")
+
+    def test_truncates_to_18_chars_with_ellipsis(self):
+        t18 = "あ" * 18
+        self.assertEqual(generate_site.series_title(t18), t18)
+        out = generate_site.series_title("あ" * 19)
+        self.assertEqual(len(out), 18)
+        self.assertTrue(out.endswith("…"))
+        self.assertEqual(out, "あ" * 17 + "…")
+
+    def test_truncates_after_cleaning(self):
+        # 整えた後の長さで判定する(括弧書きの分で切られない)
+        self.assertEqual(generate_site.series_title("あ" * 18 + " (とても長いレーベル名がここに入ります)"), "あ" * 18)
+
+
+class SampleTitles(unittest.TestCase):
+    def sample(self, items, **kw):
+        return generate_site.campaign_sample_titles(items, **kw)
+
+    def test_sorted_by_percent_off_desc(self):
+        r = self.sample([titled("A", 30), titled("B", 90), titled("C", 60)])
+        self.assertEqual(r, ["B", "C"])
+
+    def test_ties_keep_original_order(self):
+        r = self.sample([titled("A", 50), titled("B", 50), titled("C", 50)], limit=3)
+        self.assertEqual(r, ["A", "B", "C"])
+
+    def test_same_series_is_merged(self):
+        r = self.sample([
+            titled("作品X（１） (レーベル)", 90),
+            titled("作品X（２） (レーベル)", 85),
+            titled("【合本版】作品X 全5巻", 80),
+            titled("作品Y 1", 70),
+            titled("作品Z 1", 60),
+        ])
+        self.assertEqual(r, ["作品X", "作品Y"])
+
+    def test_limit(self):
+        items = [titled(f"作品{i}", 90 - i) for i in range(5)]
+        self.assertEqual(len(self.sample(items)), 2)
+        self.assertEqual(len(self.sample(items, limit=4)), 4)
+        self.assertEqual(self.sample(items, limit=1), ["作品0"])
+        self.assertEqual(self.sample(items, limit=0), [])
+
+    def test_fewer_candidates_than_limit(self):
+        self.assertEqual(self.sample([titled("A", 50)]), ["A"])
+
+    def test_excludes_abnormal_price_no_list_price_and_nonpositive(self):
+        r = self.sample([
+            titled("安すぎ", 99, price=11),
+            titled("価格なし", 98, price=None),
+            titled("定価なし", 97, list_price=None),
+            titled("割引なし", None),
+            titled("ゼロ", 0),
+            titled("負", -5),
+            titled("真偽値", True),
+            titled("境界", 40, price=30),
+            titled("通常", 20),
+        ])
+        self.assertEqual(r, ["境界", "通常"])
+
+    def test_ignores_bad_titles(self):
+        r = self.sample([
+            titled("", 99), titled("   ", 98), titled(None, 97), titled(123, 96), titled("OK", 10),
+        ])
+        self.assertEqual(r, ["OK"])
+
+    def test_empty_or_none(self):
+        self.assertEqual(self.sample([]), [])
+        self.assertEqual(self.sample(None), [])
+
+    def test_same_selection_as_max_percent_off(self):
+        # 除外判定は campaign_max_percent_off と共通(既存挙動は変えない)
+        items = [titled("安すぎ", 99, price=11), titled("A", 60)]
+        self.assertEqual(generate_site.campaign_max_percent_off(items), 60)
+        self.assertEqual(self.sample(items), ["A"])
+
+
+class SampleTitlesInWidget(unittest.TestCase):
+    def test_generate_sale_campaigns_has_sample_titles(self):
+        c = camp("マンガ祭")
+        c["items"] = [
+            titled("平和の国の島崎へ（１） (モーニングコミックス)", 70),
+            titled("平和の国の島崎へ（２） (モーニングコミックス)", 75),
+            titled("【合本版】C3　-シーキューブ-　全17巻 (富士見ファンタジア文庫)", 60),
+        ]
+        r = build([c])
+        self.assertEqual(r[0]["sample_titles"], ["平和の国の島崎へ", "C3\u3000-シーキューブ-"])
+        self.assertEqual(r[0]["max_percent_off"], 75)
+
+    def test_empty_when_no_usable_items(self):
+        c = camp("マンガ祭")
+        c["items"] = [titled("安すぎ", 99, price=11)]
+        self.assertEqual(build([c])[0]["sample_titles"], [])
+
+    def test_key_always_present(self):
+        r = build([camp("A祭", node="1"), camp("B祭", node="2")])
+        self.assertTrue(all(isinstance(x["sample_titles"], list) for x in r))
 
 
 if __name__ == "__main__":
