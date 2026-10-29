@@ -830,8 +830,8 @@ def campaign_max_percent_off(items: list[dict]) -> int | None:
     return None if best is None else int(round(best))
 
 
-# 先頭/末尾の【合本版】【電子特典付き】のような【…】
-BRACKET_EDGE_RE = re.compile(r"^【[^】]*】|【[^】]*】$")
+# 先頭/末尾の【合本版】【電子特典付き】［カラー版］のような括り
+BRACKET_EDGE_RE = re.compile(r"^【[^】]*】|【[^】]*】$|^［[^］]*］|［[^］]*］$")
 # 末尾の括弧書き(レーベル名・「（１）」のような巻数)。全角/半角どちらも
 TRAILING_PAREN_RE = re.compile(r"[（(][^（）()]*[）)]$")
 # 末尾の巻数表記: 「全17巻」「第3巻」「 3巻」「全巻」、区切り空白つきの数字だけ(「 3」「　３」)
@@ -854,6 +854,11 @@ def series_title(title: str) -> str:
     """
     original = (title or "").strip()
     cur = original
+    # 全角スペースの後ろは副題(「ナナとカオル　Black Label」)なので落とす。
+    # 頭が1文字以下になるなら切らない
+    head, sep, _ = cur.partition("　")
+    if sep and len(head.strip()) >= 2:
+        cur = head.strip()
     while True:
         prev = cur
         cur = BRACKET_EDGE_RE.sub("", cur).strip()

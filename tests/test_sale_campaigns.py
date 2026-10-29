@@ -307,7 +307,7 @@ class SeriesTitle(unittest.TestCase):
     def test_removes_edge_brackets_and_total_volumes(self):
         self.assertEqual(
             generate_site.series_title("【合本版】C3　-シーキューブ-　全17巻 (富士見ファンタジア文庫)"),
-            "C3\u3000-シーキューブ-",
+            "C3",
         )
         self.assertEqual(generate_site.series_title("鬼滅の刃 【電子特典付き】"), "鬼滅の刃")
         self.assertEqual(generate_site.series_title("【合本版】【電子特典付き】鬼滅の刃"), "鬼滅の刃")
@@ -317,6 +317,15 @@ class SeriesTitle(unittest.TestCase):
                   "進撃の巨人第３巻", "進撃の巨人 3", "進撃の巨人　３", "進撃の巨人 全巻",
                   "進撃の巨人 (講談社コミックス) (34)"]:
             self.assertEqual(generate_site.series_title(t), "進撃の巨人", t)
+
+    def test_removes_square_brackets_and_subtitle(self):
+        # 実データ: 同じ作品が「［カラー版］…　Black Label」と素の題で別々に出た
+        self.assertEqual(
+            generate_site.series_title("［カラー版］ナナとカオル　Black Label (ヤングアニマル)"), "ナナとカオル"
+        )
+        self.assertEqual(generate_site.series_title("アーキテクトの教科書　価値を生むソフトウェア"), "アーキテクトの教科書")
+        # 全角スペースの前が1文字なら副題とはみなさず切らない
+        self.assertEqual(generate_site.series_title("あ　いうえお"), "あ\u3000いうえお")
 
     def test_repeated_labels(self):
         self.assertEqual(generate_site.series_title("作品名 (A) (B) (C)"), "作品名")
@@ -418,7 +427,7 @@ class SampleTitlesInWidget(unittest.TestCase):
             titled("【合本版】C3　-シーキューブ-　全17巻 (富士見ファンタジア文庫)", 60),
         ]
         r = build([c])
-        self.assertEqual(r[0]["sample_titles"], ["平和の国の島崎へ", "C3\u3000-シーキューブ-"])
+        self.assertEqual(r[0]["sample_titles"], ["平和の国の島崎へ", "C3"])
         self.assertEqual(r[0]["max_percent_off"], 75)
 
     def test_empty_when_no_usable_items(self):
