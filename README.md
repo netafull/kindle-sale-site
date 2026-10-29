@@ -111,7 +111,17 @@ open docs/index.html
 <script src="https://book.netaful.jp/widget.js" async></script>
 ```
 
+`docs/widget.json` の `manga_books` は、マンガだけのセール本リスト(`books` と同じ項目、割引率の高い順、最大 `widget_manga_pool_size` 件・既定10)です。漫画ポチが「セール」のお知らせ行に使います。マンガ判定はジャンル「マンガ」のスキャン結果と、企画名にマンガ/コミック/漫画を含む企画(小説系を含む企画を除く)の商品のみで、`data/sales.json` の `manga_items` に保存されます。判定できない本は含めず、Amazon APIの呼び出しは増えません。
+
 動作確認用のテストページは `docs/widget-test.html` (`python3 scripts/generate_site.py` 実行後に `open docs/widget-test.html` で確認可能)。
+
+## テスト
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+APIは呼ばず、ダミーデータだけで `manga_books` の判定・並び順・異常価格の除外・`books` が変わらないことを確認します。
 
 ## 注意事項
 

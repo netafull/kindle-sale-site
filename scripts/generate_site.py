@@ -730,6 +730,45 @@ def compact_title(title: str) -> str:
     return s or title
 
 
+def widget_book(b: dict) -> dict:
+    return {
+        "title": compact_title(b.get("title") or ""),
+        "price": b.get("price"),
+        "list_price": b.get("list_price"),
+        "percent_off": b.get("percent_off"),
+        "points": b.get("points"),
+        "points_percent": b.get("points_percent"),
+        "image": b.get("image"),
+        "url": b.get("url"),
+    }
+
+
+# これ未満の価格は、取得ミスや無料同然の異常値とみなして除外する
+MANGA_MIN_PRICE = 30
+
+
+def generate_manga_books(data: dict) -> list[dict]:
+    """マンガだけのセール本リスト(漫画ポチが読む)。
+
+    元データはfetch_sales.pyが仕分けた data["manga_items"]。マンガと判定できない
+    本は最初から入っていない。古いsales.json(キー無し)では空リストになる。
+    割引率が確認できない本(定価なし・割引率なし)と異常に安い本は除く
+    """
+    items = [
+        b
+        for b in data.get("manga_items") or []
+        if (b.get("price") or 0) >= MANGA_MIN_PRICE
+        and b.get("list_price")
+        and b.get("percent_off")
+    ]
+    items.sort(
+        key=lambda b: (b.get("percent_off") or 0, b.get("points_percent") or 0),
+        reverse=True,
+    )
+    pool_size = CONFIG.get("widget_manga_pool_size", 10)
+    return [widget_book(b) for b in items[:pool_size]]
+
+
 def generate_widget_data(data: dict) -> dict:
     site_url = CONFIG.get("site_url", "")
     campaigns = data.get("campaigns") or []
@@ -756,19 +795,7 @@ def generate_widget_data(data: dict) -> dict:
 
     pool_size = CONFIG.get("widget_pool_size", 20)
 
-    books = [
-        {
-            "title": compact_title(b.get("title") or ""),
-            "price": b.get("price"),
-            "list_price": b.get("list_price"),
-            "percent_off": b.get("percent_off"),
-            "points": b.get("points"),
-            "points_percent": b.get("points_percent"),
-            "image": b.get("image"),
-            "url": b.get("url"),
-        }
-        for b in deduped[:pool_size]
-    ]
+    books = [widget_book(b) for b in deduped[:pool_size]]
 
     return {
         "updated": data.get("fetched_at"),
@@ -776,6 +803,7 @@ def generate_widget_data(data: dict) -> dict:
         "site_title": CONFIG.get("site_title", ""),
         "campaign_count": len(campaigns),
         "books": books,
+        "manga_books": generate_manga_books(data),
     }
 
 

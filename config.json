@@ -42,6 +42,7 @@
   "max_campaigns": 30,
   "rss_campaign_days": 7,
   "widget_pool_size": 20,
+  "widget_manga_pool_size": 10,
   "campaign_max_pages": 5,
   "campaign_scan_limit": 40,
   "genres": [

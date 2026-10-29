@@ -309,6 +309,47 @@ def dedupe_series(items: list[dict]) -> list[dict]:
     return deduped
 
 
+# 漫画ポチ(別サイト)が「セール」のお知らせ行に使うマンガ専用リストの元データ。
+# sales.jsonにはジャンル情報が無く、othersは全ジャンル混在の上位24冊しか
+# 残らないため、後から「マンガだけ」を取り出せない。そこで取得済みの
+# ジャンル別スキャン結果と企画の商品に印を付けて別リストとして残す。
+# API呼び出しは一切増やさない(取得済みデータの仕分けだけ)
+MANGA_GENRE_NAME = "マンガ"
+# 企画名にこれを含む企画の商品はマンガとみなす
+MANGA_CAMPAIGN_RE = re.compile(r"マンガ|コミック|漫画")
+# 「コミック＆ノベルフェア」のように小説が混ざる企画は、漫画でない本を
+# 混ぜるより取りこぼす方がよいので対象外にする
+NOVEL_CAMPAIGN_RE = re.compile(r"ノベル|小説|文庫")
+# sales.jsonに残すマンガ候補の上限。表示側で異常価格を除いて絞るため余裕を持たせる
+MANGA_ITEMS_LIMIT = 100
+
+
+def collect_manga_items(genres: list[dict], campaigns: list[dict]) -> list[dict]:
+    """マンガと判定できる商品を、割引率の高い順に返す(判定できないものは含めない)。
+
+    判定の根拠は2つだけ: ①ジャンル「マンガ」のスキャンで取れた商品、
+    ②企画名にマンガ/コミック/漫画を含む企画(小説系の語を含む企画は除く)の商品
+    """
+    pool: dict[str, dict] = {}
+    for genre in genres:
+        if genre.get("name") != MANGA_GENRE_NAME:
+            continue
+        for b in genre.get("items") or []:
+            pool.setdefault(b["asin"], b)
+    for c in campaigns:
+        name = c.get("name") or ""
+        if not MANGA_CAMPAIGN_RE.search(name) or NOVEL_CAMPAIGN_RE.search(name):
+            continue
+        for b in c.get("items") or []:
+            pool.setdefault(b["asin"], b)
+    ranked = sorted(
+        pool.values(),
+        key=lambda x: (x.get("percent_off") or 0, x.get("points_percent") or 0),
+        reverse=True,
+    )
+    return dedupe_series(ranked)[:MANGA_ITEMS_LIMIT]
+
+
 def parse_items(
     response: dict, partner_tag: str, min_saving: int
 ) -> tuple[list[dict], int]:
@@ -754,6 +795,8 @@ def main() -> int:
     others = sorted(pool.values(), key=sort_key, reverse=True)
     others = dedupe_series(others)[:24]
     print(f"その他のセール本: {len(others)}冊")
+    manga_items = collect_manga_items(genres, campaigns)
+    print(f"マンガ判定できた本: {len(manga_items)}冊")
 
     if len(others) + sum(len(c["items"]) for c in campaigns) == 0:
         # 全企画・その他とも0冊はAPI障害・キー失効の可能性が高い。
@@ -771,6 +814,7 @@ def main() -> int:
                 "min_saving_percent": min_saving,
                 "campaigns": campaigns,
                 "others": others,
+                "manga_items": manga_items,
             },
             ensure_ascii=False,
             indent=2,
