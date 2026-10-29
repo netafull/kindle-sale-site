@@ -793,6 +793,31 @@ def parse_since_date(since: str | None) -> datetime.date | None:
         return None
 
 
+def campaign_max_percent_off(items: list[dict]) -> int | None:
+    """企画の items のうち最大の割引率(整数)。該当が無ければ None。
+
+    根拠: sales.json の campaigns[].items は企画の全商品ではなく、
+    割引率+ポイント還元率の降順で上位 items_per_campaign 件に切った一部。
+    なので「最大」は保存されている範囲での実測値(企画全体の真の最大ではない)。
+    manga_books と同じ除外条件: price が MANGA_MIN_PRICE 未満の異常値
+    (¥11 で 99%OFF など)、定価(list_price)なし、割引率が数値でない/0以下は数えない
+    """
+    best = None
+    for b in items or []:
+        pct = b.get("percent_off")
+        if (
+            isinstance(pct, bool)
+            or not isinstance(pct, (int, float))
+            or (b.get("price") or 0) < MANGA_MIN_PRICE
+            or not b.get("list_price")
+            or pct <= 0
+        ):
+            continue
+        if best is None or pct > best:
+            best = pct
+    return None if best is None else int(round(best))
+
+
 def generate_sale_campaigns(data: dict, today: datetime.date | None = None) -> list[dict]:
     """セール企画の一覧(漫画ポチがお知らせ欄に企画名＋企画ページへのリンクを出す)。
 
@@ -832,6 +857,7 @@ def generate_sale_campaigns(data: dict, today: datetime.date | None = None) -> l
             "total": total,
             "since": since or None,
             "is_manga": is_manga_campaign_name(c.get("name") or ""),
+            "max_percent_off": campaign_max_percent_off(c.get("items")),
         }
     # since の新しい順(無ければ最後)→ マンガ企画を先頭へ。安定ソートを2回かける
     rows = sorted(found.values(), key=lambda r: r["since"] or "", reverse=True)

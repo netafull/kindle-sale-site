@@ -59,6 +59,46 @@ def build(campaigns, today=TODAY, **extra):
 
 
 class SaleCampaigns(unittest.TestCase):
+    def _max(self, items):
+        c = camp("マンガ祭")
+        c["items"] = items
+        return build([c])[0]["max_percent_off"]
+
+    def test_max_percent_off_is_max_of_items(self):
+        self.assertEqual(self._max([book("A", 40), book("B", 91), book("C", 70)]), 91)
+
+    def test_max_percent_off_rounds_to_int(self):
+        self.assertEqual(self._max([book("A", 80.6), book("B", 40)]), 81)
+
+    def test_max_percent_off_excludes_abnormal_price(self):
+        cheap = book("A", 99)
+        cheap["price"] = 11
+        zero = book("B", 95)
+        zero["price"] = None
+        edge = book("C", 60)
+        edge["price"] = 30
+        self.assertEqual(self._max([cheap, zero, edge, book("D", 50)]), 60)
+
+    def test_max_percent_off_excludes_missing_list_price(self):
+        no_list = book("A", 90)
+        no_list["list_price"] = None
+        self.assertEqual(self._max([no_list, book("B", 30)]), 30)
+
+    def test_max_percent_off_null_when_nothing_qualifies(self):
+        cheap = book("A", 99)
+        cheap["price"] = 11
+        no_list = book("B", 90)
+        no_list["list_price"] = None
+        no_pct = book("C", None)
+        zero_pct = book("D", 0)
+        neg_pct = book("E", -5)
+        self.assertIsNone(self._max([cheap, no_list, no_pct, zero_pct, neg_pct]))
+
+    def test_max_percent_off_does_not_change_order_or_other_keys(self):
+        r = build([camp("A祭", node="1"), camp("B祭", node="2")])
+        self.assertEqual([x["name"] for x in r], ["A祭", "B祭"])
+        self.assertTrue(all("max_percent_off" in x for x in r))
+
     def test_fields(self):
         r = build([camp("マンガ祭", "2026-07-30T01:00:00+00:00", total=42, node="9")])
         self.assertEqual(
@@ -70,6 +110,7 @@ class SaleCampaigns(unittest.TestCase):
                     "total": 42,
                     "since": "2026-07-30T01:00:00+00:00",
                     "is_manga": True,
+                    "max_percent_off": 50,
                 }
             ],
         )
