@@ -316,7 +316,7 @@ def dedupe_series(items: list[dict]) -> list[dict]:
 # API呼び出しは一切増やさない(取得済みデータの仕分けだけ)
 MANGA_GENRE_NAME = "マンガ"
 # 企画名にこれを含む企画の商品はマンガとみなす
-MANGA_CAMPAIGN_RE = re.compile(r"マンガ|コミック|漫画")
+MANGA_CAMPAIGN_RE = re.compile(r"マンガ|コミック|漫画|漫祭")
 # 「コミック＆ノベルフェア」のように小説が混ざる企画は、漫画でない本を
 # 混ぜるより取りこぼす方がよいので対象外にする
 NOVEL_CAMPAIGN_RE = re.compile(r"ノベル|小説|文庫")

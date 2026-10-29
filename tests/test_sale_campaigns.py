@@ -4,6 +4,7 @@
 Amazon APIは呼ばない(ダミーデータだけで検証する)。
 """
 
+import datetime
 import sys
 import unittest
 from pathlib import Path
@@ -14,6 +15,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import generate_site  # noqa: E402
 
 AMAZON = "https://www.amazon.co.jp/b?node="
+# 鮮度判定の「今日」は固定する(既定の許容は30日 → 2026-07-02 以降が対象)
+TODAY = datetime.date(2026, 8, 1)
+DEFAULT_SINCE = "2026-07-30T00:00:00+00:00"
+NO_SINCE = object()
 
 
 def book(asin, percent_off=50):
@@ -30,7 +35,7 @@ def book(asin, percent_off=50):
     }
 
 
-def camp(name, since_at=None, total=100, items=True, url=None, node="1", since=None):
+def camp(name, since_at=DEFAULT_SINCE, total=100, items=True, url=None, node="1", since=None):
     c = {
         "node_id": node,
         "name": name,
@@ -38,6 +43,8 @@ def camp(name, since_at=None, total=100, items=True, url=None, node="1", since=N
         "total": total,
         "items": [book("X" + node)] if items else [],
     }
+    if since_at is NO_SINCE or since:
+        since_at = None
     if since_at:
         c["since_at"] = since_at
     if since:
@@ -45,10 +52,10 @@ def camp(name, since_at=None, total=100, items=True, url=None, node="1", since=N
     return c
 
 
-def build(campaigns, **extra):
+def build(campaigns, today=TODAY, **extra):
     d = {"fetched_at": "2026-01-01T00:00:00+00:00", "campaigns": campaigns, "others": []}
     d.update(extra)
-    return generate_site.generate_widget_data(d)["sale_campaigns"]
+    return generate_site.generate_widget_data(d, today)["sale_campaigns"]
 
 
 class SaleCampaigns(unittest.TestCase):
@@ -78,6 +85,7 @@ class SaleCampaigns(unittest.TestCase):
             camp("スターツ出版 夏のコミック＆ノベルフェア", node="3"),
             camp("実用書フェア", node="4"),
             camp("文庫フェア", node="5"),
+            camp("小学館 漫祭2026 第7弾", node="6"),
         ])}
         self.assertEqual(
             r,
@@ -87,6 +95,7 @@ class SaleCampaigns(unittest.TestCase):
                 "スターツ出版 夏のコミック＆ノベルフェア": False,
                 "実用書フェア": False,
                 "文庫フェア": False,
+                "小学館 漫祭2026 第7弾": True,
             },
         )
 
@@ -140,16 +149,16 @@ class SaleCampaigns(unittest.TestCase):
             camp("マンガB", "2026-07-20T00:00:00+00:00", node="2"),
             camp("コミックC", "2026-07-25T00:00:00+00:00", node="3"),
             camp("実用書D", "2026-07-28T00:00:00+00:00", node="4"),
-            camp("漫画E(日付なし)", node="5"),
-            camp("実用書F(日付なし)", node="6"),
+            camp("漫画E(日付なし)", NO_SINCE, node="5"),
+            camp("実用書F(日付なし)", NO_SINCE, node="6"),
         ])
         self.assertEqual(
             [c["name"] for c in r],
-            ["コミックC", "マンガB", "漫画E(日付なし)", "実用書A", "実用書D", "実用書F(日付なし)"],
+            ["コミックC", "マンガB", "実用書A", "実用書D"],
         )
 
     def test_pool_size_from_config(self):
-        camps = [camp(f"企画{i}", f"2026-07-{i + 1:02d}T00:00:00+00:00", node=str(i)) for i in range(10)]
+        camps = [camp(f"企画{i}", f"2026-07-{i + 10:02d}T00:00:00+00:00", node=str(i)) for i in range(10)]
         old = generate_site.CONFIG.get("widget_campaign_pool_size")
         try:
             generate_site.CONFIG["widget_campaign_pool_size"] = 3
@@ -159,6 +168,61 @@ class SaleCampaigns(unittest.TestCase):
         finally:
             if old is not None:
                 generate_site.CONFIG["widget_campaign_pool_size"] = old
+
+    def test_old_campaigns_excluded(self):
+        r = build([
+            camp("新しい", "2026-07-30T00:00:00+00:00", node="1"),
+            camp("古い企画", "2026-06-01T00:00:00+00:00", node="2"),
+            camp("古いマンガ企画", "2026-05-01", node="3"),
+        ])
+        self.assertEqual([c["name"] for c in r], ["新しい"])
+
+    def test_age_boundary_30_days(self):
+        # 今日=2026-08-01。30日前=2026-07-02 は残り、31日前=2026-07-01 は除外
+        r = build([
+            camp("ちょうど30日", "2026-07-02T23:59:59+00:00", node="1"),
+            camp("31日前", "2026-07-01T23:59:59+00:00", node="2"),
+            camp("日付のみ30日", since="2026-07-02", node="3"),
+            camp("日付のみ31日", since="2026-07-01", node="4"),
+        ])
+        self.assertEqual(sorted(c["name"] for c in r), ["ちょうど30日", "日付のみ30日"])
+
+    def test_missing_or_invalid_since_excluded(self):
+        r = build([
+            camp("日付なし", NO_SINCE, node="1"),
+            camp("壊れた日付", "not-a-date", node="2"),
+            camp("空文字", "", node="3"),
+            camp("OK", node="4"),
+        ])
+        self.assertEqual([c["name"] for c in r], ["OK"])
+
+    def test_old_duplicate_does_not_override(self):
+        # 新しい方が鮮度条件を満たし、古い同名は無視される
+        r = build([
+            camp("サマー", "2026-05-01T00:00:00+00:00", node="1"),
+            camp("サマー", "2026-07-29T00:00:00+00:00", node="2"),
+        ])
+        self.assertEqual([c["url"] for c in r], [AMAZON + "2"])
+
+    def test_max_age_from_config(self):
+        camps = [camp("A", "2026-07-20T00:00:00+00:00", node="1")]
+        old = generate_site.CONFIG.get("widget_campaign_max_age_days")
+        try:
+            generate_site.CONFIG["widget_campaign_max_age_days"] = 5
+            self.assertEqual(build(camps), [])
+            generate_site.CONFIG["widget_campaign_max_age_days"] = 12
+            self.assertEqual(len(build(camps)), 1)
+        finally:
+            if old is not None:
+                generate_site.CONFIG["widget_campaign_max_age_days"] = old
+
+    def test_today_defaults_to_real_today(self):
+        today = datetime.date.today()
+        fresh = camp("今日", today.isoformat() + "T00:00:00+00:00", node="1")
+        stale = camp("古い", (today - datetime.timedelta(days=60)).isoformat(), node="2")
+        d = {"fetched_at": "x", "campaigns": [fresh, stale], "others": []}
+        r = generate_site.generate_widget_data(d)["sale_campaigns"]
+        self.assertEqual([c["name"] for c in r], ["今日"])
 
     def test_old_data_without_campaigns_key(self):
         d = {"fetched_at": "x", "others": [], "campaigns": None}

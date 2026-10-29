@@ -782,13 +782,31 @@ def campaign_display_name(name: str) -> str:
     return stripped or name
 
 
-def generate_sale_campaigns(data: dict) -> list[dict]:
+def parse_since_date(since: str | None) -> datetime.date | None:
+    """since(日時でも日付のみでも可)の日付部分を返す。解釈できなければ None。
+    タイムゾーンは考慮せず、日付単位で扱う"""
+    if not since or not isinstance(since, str):
+        return None
+    try:
+        return datetime.date.fromisoformat(since.strip()[:10])
+    except ValueError:
+        return None
+
+
+def generate_sale_campaigns(data: dict, today: datetime.date | None = None) -> list[dict]:
     """セール企画の一覧(漫画ポチがお知らせ欄に企画名＋企画ページへのリンクを出す)。
 
     マンガ企画が先、その中は掲載開始の新しい順。続けてマンガ以外の企画。
     企画名が同じ(接頭辞を除いて同じ)ものは新しい方だけ残す。
     古いsales.json(キー無し)では空リストになる。Amazon APIは呼ばない
+
+    企画が開催中かはAPIから判定できないので、初検出(since)が
+    widget_campaign_max_age_days(既定30)日より古い企画と、sinceが無い/
+    解釈できない企画は出さない(古さが分からないものは出さない)。
+    today は日付での比較用(テストで固定する。省略時は実際の今日)
     """
+    today = today or datetime.date.today()
+    max_age = CONFIG.get("widget_campaign_max_age_days", 30)
     found: dict[str, dict] = {}
     for c in data.get("campaigns") or []:
         url = c.get("url") or ""
@@ -802,6 +820,9 @@ def generate_sale_campaigns(data: dict) -> list[dict]:
         ):
             continue
         since = c.get("since_at") or c.get("since") or ""
+        since_date = parse_since_date(since)
+        if since_date is None or (today - since_date).days > max_age:
+            continue
         prev = found.get(name)
         if prev is not None and (prev["since"] or "") >= since:
             continue
@@ -820,7 +841,7 @@ def generate_sale_campaigns(data: dict) -> list[dict]:
     return dated[:pool_size]
 
 
-def generate_widget_data(data: dict) -> dict:
+def generate_widget_data(data: dict, today: datetime.date | None = None) -> dict:
     site_url = CONFIG.get("site_url", "")
     campaigns = data.get("campaigns") or []
     others = data.get("others") or []
@@ -855,7 +876,7 @@ def generate_widget_data(data: dict) -> dict:
         "campaign_count": len(campaigns),
         "books": books,
         "manga_books": generate_manga_books(data),
-        "sale_campaigns": generate_sale_campaigns(data),
+        "sale_campaigns": generate_sale_campaigns(data, today),
     }
 
 
