@@ -320,6 +320,14 @@ MANGA_CAMPAIGN_RE = re.compile(r"マンガ|コミック|漫画")
 # 「コミック＆ノベルフェア」のように小説が混ざる企画は、漫画でない本を
 # 混ぜるより取りこぼす方がよいので対象外にする
 NOVEL_CAMPAIGN_RE = re.compile(r"ノベル|小説|文庫")
+
+
+def is_manga_campaign_name(name: str) -> bool:
+    """企画名からマンガ企画か判定する(generate_site.py の sale_campaigns も共有)"""
+    name = name or ""
+    return bool(MANGA_CAMPAIGN_RE.search(name)) and not NOVEL_CAMPAIGN_RE.search(name)
+
+
 # sales.jsonに残すマンガ候補の上限。表示側で異常価格を除いて絞るため余裕を持たせる
 MANGA_ITEMS_LIMIT = 100
 
@@ -337,8 +345,7 @@ def collect_manga_items(genres: list[dict], campaigns: list[dict]) -> list[dict]
         for b in genre.get("items") or []:
             pool.setdefault(b["asin"], b)
     for c in campaigns:
-        name = c.get("name") or ""
-        if not MANGA_CAMPAIGN_RE.search(name) or NOVEL_CAMPAIGN_RE.search(name):
+        if not is_manga_campaign_name(c.get("name") or ""):
             continue
         for b in c.get("items") or []:
             pool.setdefault(b["asin"], b)

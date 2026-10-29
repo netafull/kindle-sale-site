@@ -113,6 +113,8 @@ open docs/index.html
 
 `docs/widget.json` の `manga_books` は、マンガだけのセール本リスト(`books` と同じ項目、割引率の高い順、最大 `widget_manga_pool_size` 件・既定10)です。漫画ポチが「セール」のお知らせ行に使います。マンガ判定はジャンル「マンガ」のスキャン結果と、企画名にマンガ/コミック/漫画を含む企画(小説系を含む企画を除く)の商品のみで、`data/sales.json` の `manga_items` に保存されます。判定できない本は含めず、Amazon APIの呼び出しは増えません。
 
+`docs/widget.json` の `sale_campaigns` は、開催中のセール企画の一覧です(`name` 表示用企画名・`url` Amazon企画ページ・`total` 冊数・`since` 初検出日時・`is_manga` マンガ企画か)。漫画ポチがお知らせ欄に「企画名＋企画ページへのリンク」を出すために使います。企画名先頭の【対象作品◯点以上】は削り、同名の企画は新しい方だけ残します。並びはマンガ企画が先で、その中は新しい順、続けてマンガ以外の企画で、最大 `widget_campaign_pool_size` 件・既定6です。`is_manga` の判定は `manga_books` と同じ(企画名にマンガ/コミック/漫画を含み、小説系を含まない)。URLがAmazon以外・冊数0・商品なしの企画は除きます。`data/sales.json` の既存の `campaigns` から作るので、Amazon APIの呼び出しは増えません。
+
 動作確認用のテストページは `docs/widget-test.html` (`python3 scripts/generate_site.py` 実行後に `open docs/widget-test.html` で確認可能)。
 
 ## テスト
@@ -121,7 +123,7 @@ open docs/index.html
 python3 -m unittest discover -s tests -v
 ```
 
-APIは呼ばず、ダミーデータだけで `manga_books` の判定・並び順・異常価格の除外・`books` が変わらないことを確認します。
+APIは呼ばず、ダミーデータだけで `manga_books` と `sale_campaigns` の判定・並び順・除外・`books` が変わらないことを確認します。
 
 ## 注意事項
 

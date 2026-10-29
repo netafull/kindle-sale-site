@@ -9,6 +9,8 @@ import json
 import re
 from pathlib import Path
 
+from fetch_sales import is_manga_campaign_name
+
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
 DATA_PATH = ROOT / "data" / "sales.json"
@@ -769,6 +771,55 @@ def generate_manga_books(data: dict) -> list[dict]:
     return [widget_book(b) for b in items[:pool_size]]
 
 
+# 企画名の先頭にある「【対象作品950点以上】」のような【…】の接頭辞
+CAMPAIGN_PREFIX_RE = re.compile(r"^【[^】]*】")
+
+
+def campaign_display_name(name: str) -> str:
+    """表示用の企画名。先頭の【…】を削る(削ると空になるなら元の名前)"""
+    name = (name or "").strip()
+    stripped = CAMPAIGN_PREFIX_RE.sub("", name).strip()
+    return stripped or name
+
+
+def generate_sale_campaigns(data: dict) -> list[dict]:
+    """セール企画の一覧(漫画ポチがお知らせ欄に企画名＋企画ページへのリンクを出す)。
+
+    マンガ企画が先、その中は掲載開始の新しい順。続けてマンガ以外の企画。
+    企画名が同じ(接頭辞を除いて同じ)ものは新しい方だけ残す。
+    古いsales.json(キー無し)では空リストになる。Amazon APIは呼ばない
+    """
+    found: dict[str, dict] = {}
+    for c in data.get("campaigns") or []:
+        url = c.get("url") or ""
+        name = campaign_display_name(c.get("name") or "")
+        total = c.get("total") or 0
+        if (
+            not url.startswith("https://www.amazon.co.jp/")
+            or not name
+            or total <= 0
+            or not c.get("items")
+        ):
+            continue
+        since = c.get("since_at") or c.get("since") or ""
+        prev = found.get(name)
+        if prev is not None and (prev["since"] or "") >= since:
+            continue
+        found[name] = {
+            "name": name,
+            "url": url,
+            "total": total,
+            "since": since or None,
+            "is_manga": is_manga_campaign_name(c.get("name") or ""),
+        }
+    # since の新しい順(無ければ最後)→ マンガ企画を先頭へ。安定ソートを2回かける
+    rows = sorted(found.values(), key=lambda r: r["since"] or "", reverse=True)
+    dated = [r for r in rows if r["since"]] + [r for r in rows if not r["since"]]
+    dated.sort(key=lambda r: not r["is_manga"])
+    pool_size = CONFIG.get("widget_campaign_pool_size", 6)
+    return dated[:pool_size]
+
+
 def generate_widget_data(data: dict) -> dict:
     site_url = CONFIG.get("site_url", "")
     campaigns = data.get("campaigns") or []
@@ -804,6 +855,7 @@ def generate_widget_data(data: dict) -> dict:
         "campaign_count": len(campaigns),
         "books": books,
         "manga_books": generate_manga_books(data),
+        "sale_campaigns": generate_sale_campaigns(data),
     }
 
 
