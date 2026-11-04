@@ -412,7 +412,6 @@ gtag('config', '{esc(ga_id)}');
 <header>
 <h1><a href="./" data-google-vignette="false"><img src="assets/logo.png" alt="" width="32" height="32">{esc(CONFIG["site_title"])}</a></h1>
 <p>{esc(CONFIG["site_description"])} ｜ 割引率とポイント還元率の合計が{data["min_saving_percent"]}%以上の本を掲載 ｜ 最終更新: {updated}</p>
-{related_html}
 </header>
 {header_ad}
 <main>
