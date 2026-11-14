@@ -37,11 +37,12 @@ CONFIG_PATH = ROOT / "config.json"
 OUTPUT_PATH = ROOT / "data" / "sales.json"
 # 企画ごとの初検出日。セール終了日はAPIから取得できない(dealDetailsは
 # 企画セールでは常に空)ため、「いつから掲載しているか」を自前で記録する。
-# CIがこのファイルをコミットして毎時実行をまたいで永続化する
+# CIがこのファイルをコミットして毎時実行をまたいで永続化する。
+# このファイルはCIがコミットする唯一の状態ファイルで、出版社別・型別の
+# 個別ページ(generate_site.py)の開催履歴の元データにもなる。そのため
+# 検出されなくなった企画も落とさず全件を保持し続ける(下記
+# merge_retained_entries を参照)
 STATE_PATH = ROOT / "data" / "campaign_state.json"
-# 検出されなくなった企画の状態を保持する日数。検出条件を一時的に
-# 満たさなくなっただけで初検出日がリセットされるのを防ぐ猶予期間
-STATE_GRACE_DAYS = 14
 # 送信予定の通知の置き場。実際の送信はサイトが公開されたあとに
 # scripts/notify.py が行う。コミットしない一時ファイル
 NOTIFY_PATH = ROOT / "data" / "pending_notification.json"
@@ -495,6 +496,31 @@ def load_state() -> dict:
         sys.exit(1)
 
 
+def merge_retained_entries(state: dict, new_state: dict) -> int:
+    """今回検出されなかった企画の記録を new_state に引き継ぎ、件数を返す。
+
+    以前は猶予期間(14日)を過ぎた企画を状態から落としていたが、状態ファイル
+    はCIがコミットする唯一のファイルで、ここから落とすと開催履歴が永久に
+    失われる。出版社別・型別の個別ページが開催履歴の元データとして使う
+    ため、検出されなくなった企画も含めて全件を保持する。検出条件を一時的に
+    満たさなくなっただけで初検出日がリセットされるのを防ぐ、という猶予期間
+    の本来の目的も、保持し続ければ自動的に満たされる。
+    日付が壊れているエントリだけは履歴として使えないため引き継がない
+    """
+    kept = 0
+    for node_id, entry in state.items():
+        if node_id in new_state:
+            continue
+        last_seen = entry.get("last_seen") or entry.get("first_seen")
+        try:
+            datetime.date.fromisoformat(last_seen)
+        except (TypeError, ValueError):
+            continue  # 日付が壊れているエントリは破棄する
+        new_state[node_id] = entry
+        kept += 1
+    return kept
+
+
 def write_pending_notifications(notifications: list[dict]) -> None:
     """送信予定の通知を書き出す。送信するのはデプロイ後のscripts/notify.py。
 
@@ -730,24 +756,13 @@ def main() -> int:
             "notified": notified,
         }
 
-    # 今回検出されなかった企画も猶予期間内は状態を保持する。
-    # 開催中でも掲載条件(1ページ目にセール品3冊以上)を一時的に満たさず
-    # 検出から外れることがあり、即座に削除すると復活時に掲載開始日が
-    # 今日にリセットされてしまう
-    kept = 0
-    for node_id, entry in state.items():
-        if node_id in new_state:
-            continue
-        last_seen = entry.get("last_seen") or entry.get("first_seen")
-        try:
-            elapsed = (today_dt - datetime.date.fromisoformat(last_seen)).days
-        except (TypeError, ValueError):
-            continue  # 日付が壊れているエントリは破棄する
-        if elapsed <= STATE_GRACE_DAYS:
-            new_state[node_id] = entry
-            kept += 1
+    # 今回検出されなかった企画の記録も保持する。開催中でも掲載条件
+    # (1ページ目にセール品3冊以上)を一時的に満たさず検出から外れることが
+    # あり、削除すると復活時に掲載開始日が今日にリセットされてしまう。
+    # 終了した企画の記録は出版社別・型別ページの開催履歴になる
+    kept = merge_retained_entries(state, new_state)
     if kept:
-        print(f"(一時的に検出されなかった{kept}企画は掲載開始日を保持)")
+        print(f"(検出されなかった{kept}企画の記録を保持)")
 
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(

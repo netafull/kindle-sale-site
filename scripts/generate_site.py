@@ -208,7 +208,59 @@ def intersperse_ads(cards: list[str], every: int = AD_EVERY) -> str:
     return "\n".join(out)
 
 
-def generate_html(data: dict) -> str:
+def render_ga_tag() -> str:
+    """Google Analyticsのタグ。ga_measurement_idが未設定なら何も出さない"""
+    ga_id = CONFIG.get("ga_measurement_id", "")
+    if not ga_id:
+        return ""
+    return f"""<script async src="https://www.googletagmanager.com/gtag/js?id={esc(ga_id)}"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){{dataLayer.push(arguments);}}
+gtag('js', new Date());
+gtag('config', '{esc(ga_id)}');
+</script>"""
+
+
+def render_adsense_tag() -> str:
+    """AdSenseの広告コード。ads.txtはルートドメイン(netaful.jp)のものが
+    サブドメインにも適用されるため、各サイトでの設置は不要"""
+    adsense_id = CONFIG.get("adsense_client_id", "")
+    if not adsense_id:
+        return ""
+    return (
+        '<script async src="https://pagead2.googlesyndication.com/pagead/js/'
+        f'adsbygoogle.js?client={esc(adsense_id)}" crossorigin="anonymous"></script>'
+    )
+
+
+def render_related_html() -> str:
+    """姉妹サイト・運営ブログへの相互リンク(ヘッダーとフッターの両方に出す)"""
+    related = CONFIG.get("related_sites") or []
+    if not related:
+        return ""
+    links = "\n".join(
+        f'<a href="{esc(s["url"])}" data-google-vignette="false">{esc(s["name"])}'
+        + (f'<span class="lbl"> {esc(s["desc"])}</span>' if s.get("desc") else "")
+        + "</a>"
+        for s in related
+    )
+    return f'<div class="sites"><span class="lbl">関連サイト</span>\n{links}\n</div>'
+
+
+def render_policy_link() -> str:
+    """メディアポリシー(プライバシーポリシー・AdSenseのCookie告知を含む)は
+    netaful.jp/policy.html に既にある。各サイトに複製せずリンクで参照する"""
+    policy_url = CONFIG.get("policy_url", "")
+    if not policy_url:
+        return ""
+    return (
+        f'｜ <a href="{esc(policy_url)}" data-google-vignette="false" '
+        f'style="color:inherit">メディアポリシー</a>\n'
+    )
+
+
+def generate_html(data: dict, identity_nav: str = "") -> str:
     fetched = datetime.datetime.fromisoformat(data["fetched_at"]).astimezone(
         datetime.timezone(datetime.timedelta(hours=9))
     )
@@ -305,51 +357,13 @@ def generate_html(data: dict) -> str:
             f'<h2>{esc(CONFIG["site_title"])}について</h2>\n{paras}\n</section>'
         )
 
-    related = CONFIG.get("related_sites") or []
-    related_html = ""
-    if related:
-        links = "\n".join(
-            f'<a href="{esc(s["url"])}" data-google-vignette="false">{esc(s["name"])}'
-            + (f'<span class="lbl"> {esc(s["desc"])}</span>' if s.get("desc") else "")
-            + "</a>"
-            for s in related
-        )
-        related_html = (
-            f'<div class="sites"><span class="lbl">関連サイト</span>\n{links}\n</div>'
-        )
-    # メディアポリシー(プライバシーポリシー・AdSenseのCookie告知を含む)は
-    # netaful.jp/policy.html に既にある。3サイトとも netaful.jp 配下なので
-    # 各サイトに複製せずリンクで参照する
-    policy_url = CONFIG.get("policy_url", "")
-    policy_link = (
-        f'｜ <a href="{esc(policy_url)}" data-google-vignette="false" style="color:inherit">メディアポリシー</a>\n'
-        if policy_url
-        else ""
-    )
+    related_html = render_related_html()
+    policy_link = render_policy_link()
 
-    # AdSenseの広告コード。ads.txtはルートドメイン(netaful.jp)のものが
-    # サブドメインにも適用されるため、各サイトでの設置は不要
-    adsense_id = CONFIG.get("adsense_client_id", "")
-    adsense_tag = (
-        '<script async src="https://pagead2.googlesyndication.com/pagead/js/'
-        f'adsbygoogle.js?client={esc(adsense_id)}" crossorigin="anonymous"></script>'
-        if adsense_id
-        else ""
-    )
+    adsense_tag = render_adsense_tag()
     header_ad = render_ad_slot()
 
-    ga_id = CONFIG.get("ga_measurement_id", "")
-    ga_tag = (
-        f"""<script async src="https://www.googletagmanager.com/gtag/js?id={esc(ga_id)}"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){{dataLayer.push(arguments);}}
-gtag('js', new Date());
-gtag('config', '{esc(ga_id)}');
-</script>"""
-        if ga_id
-        else ""
-    )
+    ga_tag = render_ga_tag()
 
     # 構造化データ: サイト情報と開催中セール企画の一覧
     json_ld = json.dumps(
@@ -417,6 +431,7 @@ gtag('config', '{esc(ga_id)}');
 </header>
 {header_ad}
 <main>
+{identity_nav}
 {chr(10).join(sections)}
 {about_html}
 </main>
@@ -510,9 +525,429 @@ def generate_rss(data: dict) -> str:
 """
 
 
-def generate_sitemap(data: dict) -> str:
+# --- 出版社別・型別の個別ページ ---
+#
+# トップページは1枚しかなく、検索では「電子書籍 セール」のような汎用
+# クエリしか拾えていない。毎日集めているセールデータを捨てずに貯め、
+# 繰り返し開催される単位(出版社と、週末セール等のセールの型)ごとに
+# 固定URLのページを作り、開催中＋開催履歴を持たせる。
+#
+# 開催履歴の元データは2つ:
+#   - data/campaign_state.json: CIがコミットする唯一の状態ファイル。
+#     fetch_sales.py が終了した企画も落とさず保持し続けるため、
+#     ここが現在進行形のアーカイブになる
+#   - data/campaign_history.json: 状態ファイルが企画を剪定していた時代の
+#     開催分を復元した種データ(静的な補完分。以後は更新しない)
+# 期間はAmazon公式の開催期間ではなく、当サイトで掲載を確認した期間
+# (初検出日〜最終検出日)。ページ上にもその旨を明記する
+
+HISTORY_PATH = ROOT / "data" / "campaign_history.json"
+CAMPAIGN_STATE_PATH = ROOT / "data" / "campaign_state.json"
+
+# 出版社のキュレーション済みマッピング。(slug, 表示名, パターン)。
+# 企画名にパターンを含む最初の出版社を、その企画の出版社とする
+# (「7社合同フェア」のように出版社名を含まない企画は属さない)。
+# 開催実績がまだ無い出版社も将来の開催に備えて載せてある
+# (実績が無ければページ自体が生成されない)
+PUBLISHERS = [
+    ("kadokawa", "KADOKAWA", [r"KADOKAWA", r"カドカワ", r"カドサマー"]),
+    ("kodansha", "講談社", [r"講談社"]),
+    ("shogakukan", "小学館", [r"小学館"]),
+    ("shueisha", "集英社", [r"集英社"]),
+    ("hakusensha", "白泉社", [r"白泉社"]),
+    ("akitashoten", "秋田書店", [r"秋田書店"]),
+    ("square-enix", "スクウェア・エニックス", [r"スクウェア・エニックス", r"スクエニ"]),
+    ("shoeisha", "翔泳社", [r"翔泳社"]),
+    ("mag-garden", "マッグガーデン", [r"マッグガーデン"]),
+    ("coamix", "コアミックス", [r"コアミックス"]),
+    ("number-nine", "ナンバーナイン", [r"ナンバーナイン"]),
+    ("shufunotomo", "主婦の友社", [r"主婦の友"]),
+    ("bungeishunju", "文藝春秋", [r"文藝春秋"]),
+    ("kobunsha", "光文社", [r"光文社"]),
+    ("gentosha", "幻冬舎", [r"幻冬舎"]),
+    ("yamatokeikoku", "山と溪谷社", [r"山と溪谷社"]),
+    ("gijutsuhyoron", "技術評論社", [r"技術評論社"]),
+    ("fusosha", "扶桑社", [r"扶桑社"]),
+    ("starts", "スターツ出版", [r"スターツ出版"]),
+]
+
+# セールの型。(slug, 表示名, パターン)。型は切り口が重なってよいため、
+# 1つの企画が複数の型に同時に属せる
+FORMATS = [
+    ("weekend", "週末セール", [r"週末"]),
+    ("uniform", "均一セール", [r"均一", r"[0-9０-９]+円セール", r"[0-9０-９]+円キャンペーン"]),
+    ("points", "ポイント還元フェア", [r"ポイント還元"]),
+    ("seasonal", "季節ビッグセール", [r"ビッグセール", r"[春夏秋冬]の特別セール"]),
+]
+
+_PUBLISHER_RES = [
+    (slug, disp, [re.compile(p) for p in pats]) for slug, disp, pats in PUBLISHERS
+]
+_FORMAT_RES = [
+    (slug, disp, [re.compile(p) for p in pats]) for slug, disp, pats in FORMATS
+]
+PUBLISHER_NAMES = {slug: disp for slug, disp, _ in PUBLISHERS}
+FORMAT_NAMES = {slug: disp for slug, disp, _ in FORMATS}
+
+# 個別ページ専用の追加スタイル(トップページの見た目には影響しない)
+PAGE_CSS = CSS + """
+.crumb { font-size: 12px; color: var(--muted); margin: 4px 0 10px; }
+.crumb a { color: var(--accent); text-decoration: none; }
+.lead { font-size: 14px; margin: 8px 0 4px; }
+.hist { list-style: none; margin-top: 10px; }
+.hist li { padding: 7px 0; border-bottom: 1px solid var(--line);
+  font-size: 14px; }
+.hist .hdate { color: var(--muted); font-size: 12px; margin-right: 10px;
+  white-space: nowrap; }
+.hist .now { color: #fff; background: var(--badge-hi); font-size: 11px;
+  font-weight: 700; border-radius: 4px; padding: 1px 6px; margin-left: 6px;
+  vertical-align: 1px; }
+.note { color: var(--muted); font-size: 12px; margin-top: 12px; }
+"""
+
+
+def publisher_of(name: str):
+    """企画名から出版社を判定する。(slug, 表示名) か None"""
+    name = name or ""
+    for slug, disp, res in _PUBLISHER_RES:
+        if any(r.search(name) for r in res):
+            return slug, disp
+    return None
+
+
+def formats_of(name: str) -> list:
+    """企画名からセールの型を判定する。[(slug, 表示名), ...](該当する型すべて)"""
+    name = name or ""
+    return [
+        (slug, disp)
+        for slug, disp, res in _FORMAT_RES
+        if any(r.search(name) for r in res)
+    ]
+
+
+def _archive_row(name, first_seen, last_seen, node_id=None, total=None):
+    """開催履歴の1行に正規化する。開始日が解釈できなければ None"""
+    name = (name or "").strip()
+    first = parse_since_date(first_seen)
+    if not name or first is None:
+        return None
+    last = parse_since_date(last_seen) or first
+    if last < first:
+        last = first
+    return {
+        "name": name,
+        "first_seen": first.isoformat(),
+        "last_seen": last.isoformat(),
+        "node_id": str(node_id) if node_id else None,
+        "total": total if isinstance(total, int) and total > 0 else None,
+    }
+
+
+def merge_archive_rows(seed_rows, state) -> list:
+    """履歴の種データと現在の状態を、開催履歴のリストにまとめる。
+
+    キーは (企画名, 開始日)。状態側は node_id を持ち last_seen も新しい
+    ため、重なる行は状態側を優先する(種データの対象冊数だけ引き継ぐ)。
+    並びは開始日の新しい順
+    """
+    merged: dict = {}
+    for r in seed_rows or []:
+        if not isinstance(r, dict):
+            continue
+        row = _archive_row(
+            r.get("name"),
+            r.get("first_seen"),
+            r.get("last_seen"),
+            r.get("node_id"),
+            r.get("total"),
+        )
+        if row:
+            merged[(row["name"], row["first_seen"])] = row
+    for node_id, e in (state or {}).items():
+        if not isinstance(e, dict):
+            continue
+        row = _archive_row(e.get("name"), e.get("first_seen"), e.get("last_seen"), node_id)
+        if not row:
+            continue
+        key = (row["name"], row["first_seen"])
+        prev = merged.get(key)
+        if prev and prev.get("total") and not row.get("total"):
+            row["total"] = prev["total"]
+        merged[key] = row
+    return sorted(
+        merged.values(), key=lambda r: (r["first_seen"], r["name"]), reverse=True
+    )
+
+
+def load_campaign_archive() -> list:
+    """data/campaign_history.json(種データ)と data/campaign_state.json
+    (現在の状態)を合わせた開催履歴を返す。ファイルが無い・壊れている
+    場合は読めた分だけで組み立てる(個別ページは追加の生成物なので、
+    トップページの生成まで巻き込んで落とさない)"""
+    try:
+        seed = json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        seed = []
+    if not isinstance(seed, list):
+        seed = []
+    try:
+        state = json.loads(CAMPAIGN_STATE_PATH.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        state = {}
+    if not isinstance(state, dict):
+        state = {}
+    return merge_archive_rows(seed, state)
+
+
+def build_identity_index(data: dict, archive: list) -> dict:
+    """出版社・型ごとに {"current": [...], "history": [...]} を作る。
+
+    current は sales.json の開催中企画(商品つきのdictそのもの)。
+    history はアーカイブの行で、開催中の企画の行も含む(is_current で区別)
+    """
+    index: dict = {}
+
+    def bucket(kind, slug):
+        return index.setdefault((kind, slug), {"current": [], "history": []})
+
+    campaigns = data.get("campaigns") or []
+    current_nodes = {c.get("node_id") for c in campaigns}
+    totals = {
+        c.get("node_id"): c.get("total")
+        for c in campaigns
+        if c.get("node_id") and c.get("total")
+    }
+    for row in archive:
+        row = dict(row)
+        if not row.get("total") and row.get("node_id") in totals:
+            row["total"] = totals[row["node_id"]]
+        row["is_current"] = row.get("node_id") in current_nodes
+        pub = publisher_of(row["name"])
+        if pub:
+            bucket("publisher", pub[0])["history"].append(row)
+        for slug, _disp in formats_of(row["name"]):
+            bucket("format", slug)["history"].append(row)
+    for c in campaigns:
+        pub = publisher_of(c.get("name") or "")
+        if pub:
+            bucket("publisher", pub[0])["current"].append(c)
+        for slug, _disp in formats_of(c.get("name") or ""):
+            bucket("format", slug)["current"].append(c)
+    return index
+
+
+def period_text(row) -> str:
+    """開催履歴の期間表記。開催中なら終了日を出さない"""
+    first = datetime.date.fromisoformat(row["first_seen"])
+    if row.get("is_current"):
+        return f"{first.year}/{first.month}/{first.day}〜開催中"
+    last = datetime.date.fromisoformat(row["last_seen"])
+    if first == last:
+        return f"{first.year}/{first.month}/{first.day}"
+    if first.year == last.year:
+        return f"{first.year}/{first.month}/{first.day}〜{last.month}/{last.day}"
+    return f"{first.year}/{first.month}/{first.day}〜{last.year}/{last.month}/{last.day}"
+
+
+def render_identity_page(kind: str, slug: str, display: str, entry: dict, data: dict) -> str:
+    """出版社別・型別の個別ページ1枚分のHTMLを作る。"""
+    site_url = CONFIG.get("site_url", "")
+    seg = "publishers" if kind == "publisher" else "formats"
+    canonical = f"{site_url}{seg}/{slug}/"
+    fetched = datetime.datetime.fromisoformat(data["fetched_at"]).astimezone(
+        datetime.timezone(datetime.timedelta(hours=9))
+    )
+    updated = fetched.strftime("%Y年%m月%d日 %H:%M")
+    if kind == "publisher":
+        heading = f"{display}のKindle本セール・フェア"
+        kind_label = "出版社・版元別"
+    else:
+        heading = f"Kindle本の{display}"
+        kind_label = "セールの型別"
+    page_title = f"{heading}｜{CONFIG['site_title']}"
+    description = (
+        f"{heading}の開催中情報と開催履歴をまとめています。"
+        f"期間や対象冊数を{CONFIG['site_title']}が自動更新でお届けします。"
+    )
+    current = entry["current"]
+    history = entry["history"]
+    if kind == "publisher":
+        lead = (
+            f"{display}のKindle本セール・フェアの一覧です。"
+            f"開催中の企画は{len(current)}件、これまでの開催履歴は{len(history)}件です。"
+        )
+    else:
+        lead = (
+            f"{display}に該当するKindle本セール企画の一覧です。"
+            f"開催中の企画は{len(current)}件、これまでの開催履歴は{len(history)}件です。"
+        )
+
+    sections = [
+        f'<p class="crumb"><a href="{esc(site_url)}" data-google-vignette="false">'
+        f'{esc(CONFIG["site_title"])} トップ</a> ＞ {esc(kind_label)} ＞ {esc(display)}</p>',
+        f"<h2>{esc(heading)}</h2>",
+        f'<p class="lead">{esc(lead)}</p>',
+    ]
+    if current:
+        for c in current:
+            books = "\n".join(render_book(b) for b in (c.get("items") or [])[:6])
+            scale = scale_text(c.get("total"))
+            meta = f'<span class="hmeta"> 【{esc(scale)}】</span>' if scale else ""
+            sections.append(
+                f"<details open>\n"
+                f"<summary><h2>🔥 {esc(c['name'])}{meta}</h2></summary>\n"
+                f'<a class="cmeta-link" href="{esc(c["url"])}" '
+                f'data-google-vignette="false" target="_blank" rel="noopener sponsored">'
+                f"🛒 このセールの対象本をAmazonですべて見る</a>\n"
+                f'<div class="grid">\n{books}\n</div>\n'
+                f"</details>"
+            )
+    else:
+        sections.append(
+            f'<p class="empty">現在開催中の{esc(display)}の企画はありません。'
+            f"過去の開催は下の履歴をご覧ください。</p>"
+        )
+    rows = []
+    for row in history:
+        scale = scale_text(row.get("total"))
+        meta = f' <span class="hmeta">{esc(scale)}</span>' if scale else ""
+        now = '<span class="now">開催中</span>' if row.get("is_current") else ""
+        rows.append(
+            f'<li><span class="hdate">{esc(period_text(row))}</span>'
+            f"{esc(row['name'])}{meta}{now}</li>"
+        )
+    sections.append(
+        f'<p class="group">開催履歴 ({len(history)}件)</p>\n'
+        f'<ul class="hist">\n{chr(10).join(rows)}\n</ul>\n'
+        f'<p class="note">期間は当サイトで掲載を確認した期間(初検出日〜最終検出日)です。'
+        f"Amazon公式の開催期間とは異なる場合があります。</p>"
+    )
+
+    gsv = CONFIG.get("google_site_verification", "")
+    gsv_tag = (
+        f'<meta name="google-site-verification" content="{esc(gsv)}">' if gsv else ""
+    )
+    json_ld = json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": CONFIG["site_title"],
+                    "item": site_url,
+                },
+                {"@type": "ListItem", "position": 2, "name": kind_label},
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": display,
+                    "item": canonical,
+                },
+            ],
+        },
+        ensure_ascii=False,
+    ).replace("</", "<\\/")
+    header_ad = render_ad_slot()
+
+    return f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(page_title)}</title>
+<meta name="description" content="{esc(description)}">
+<link rel="canonical" href="{esc(canonical)}">
+{gsv_tag}
+{render_ga_tag()}
+{render_adsense_tag()}
+<link rel="icon" type="image/png" sizes="96x96" href="{esc(site_url)}assets/favicon.png">
+<link rel="apple-touch-icon" href="{esc(site_url)}assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{esc(page_title)}">
+<meta property="og:description" content="{esc(description)}">
+<meta property="og:url" content="{esc(canonical)}">
+<meta property="og:site_name" content="{esc(CONFIG["site_title"])}">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="{esc(site_url)}assets/ogp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="{esc(site_url)}rss.xml">
+<script type="application/ld+json">{json_ld}</script>
+<style>{PAGE_CSS}</style>
+</head>
+<body>
+<header>
+<h1><a href="{esc(site_url)}" data-google-vignette="false"><img src="{esc(site_url)}assets/logo.png" alt="" width="44" height="44">{esc(CONFIG["site_title"])}</a></h1>
+<p>{esc(CONFIG["site_description"])} ｜ 割引率とポイント還元率の合計が{data["min_saving_percent"]}%以上の本を掲載 ｜ 最終更新: {updated}</p>
+</header>
+{header_ad}
+<main>
+{chr(10).join(sections)}
+</main>
+<footer>
+価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
+Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
+当サイトはアクセス解析のためGoogle Analyticsを利用しています(データは匿名で収集され、Googleに送信されます)。
+{render_policy_link()}｜ <a href="{esc(site_url)}rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
+{render_related_html()}
+</footer>
+</body>
+</html>
+"""
+
+
+def generate_identity_pages(data: dict, index: dict) -> dict:
+    """個別ページの {相対パス: HTML} を返す。
+    開催履歴も開催中も無い単位のページは作らない"""
+    pages = {}
+    for (kind, slug), entry in index.items():
+        if not entry["history"] and not entry["current"]:
+            continue
+        display = (PUBLISHER_NAMES if kind == "publisher" else FORMAT_NAMES)[slug]
+        seg = "publishers" if kind == "publisher" else "formats"
+        pages[f"{seg}/{slug}/index.html"] = render_identity_page(
+            kind, slug, display, entry, data
+        )
+    return pages
+
+
+def identity_nav_html(index: dict) -> str:
+    """トップページに差し込む、個別ページへのチップ状ナビ。
+    ページが生成される単位だけを定義順に並べる"""
+
+    def chips(kind, names, seg, label):
+        present = [(slug, disp) for slug, disp in names if (kind, slug) in index]
+        if not present:
+            return ""
+        links = "\n".join(
+            f'<a href="{seg}/{slug}/" data-google-vignette="false">{esc(disp)}</a>'
+            for slug, disp in present
+        )
+        return f'<div class="sites"><span class="lbl">{label}</span>\n{links}\n</div>'
+
+    parts = [
+        chips(
+            "publisher",
+            [(s, d) for s, d, _ in PUBLISHERS],
+            "publishers",
+            "出版社・版元から探す",
+        ),
+        chips("format", [(s, d) for s, d, _ in FORMATS], "formats", "セールの型から探す"),
+    ]
+    return "\n".join(p for p in parts if p)
+
+
+def generate_sitemap(data: dict, extra_urls=None) -> str:
     site_url = CONFIG.get("site_url", "")
     lastmod = data["fetched_at"][:10]
+    extras = "".join(
+        f"<url>\n<loc>{esc(u)}</loc>\n<lastmod>{lastmod}</lastmod>\n"
+        f"<changefreq>daily</changefreq>\n</url>\n"
+        for u in extra_urls or []
+    )
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
@@ -520,7 +955,7 @@ def generate_sitemap(data: dict) -> str:
 <lastmod>{lastmod}</lastmod>
 <changefreq>hourly</changefreq>
 </url>
-</urlset>
+{extras}</urlset>
 """
 
 
@@ -1001,10 +1436,25 @@ def generate_widget_assets(data: dict) -> tuple[str, str]:
 def main():
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     site_url = CONFIG.get("site_url", "")
+    # 出版社別・型別の個別ページ(開催履歴はアーカイブから組み立てる)
+    archive = load_campaign_archive()
+    index = build_identity_index(data, archive)
+    identity_pages = generate_identity_pages(data, index)
     DOCS.mkdir(exist_ok=True)
-    (DOCS / "index.html").write_text(generate_html(data), encoding="utf-8")
+    (DOCS / "index.html").write_text(
+        generate_html(data, identity_nav_html(index)), encoding="utf-8"
+    )
     (DOCS / "rss.xml").write_text(generate_rss(data), encoding="utf-8")
-    (DOCS / "sitemap.xml").write_text(generate_sitemap(data), encoding="utf-8")
+    page_urls = sorted(
+        f"{site_url}{path[: -len('index.html')]}" for path in identity_pages
+    )
+    (DOCS / "sitemap.xml").write_text(
+        generate_sitemap(data, page_urls), encoding="utf-8"
+    )
+    for rel, content in identity_pages.items():
+        dest = DOCS / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(content, encoding="utf-8")
     (DOCS / "robots.txt").write_text(
         f"User-agent: *\nAllow: /\nSitemap: {site_url}sitemap.xml\n",
         encoding="utf-8",
@@ -1017,7 +1467,7 @@ def main():
     )
     print(
         f"generated: index.html, rss.xml, sitemap.xml, robots.txt, "
-        f"widget.json, widget.js ({total}冊)"
+        f"widget.json, widget.js ({total}冊, 個別ページ{len(identity_pages)}件)"
     )
 
 
