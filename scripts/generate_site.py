@@ -593,12 +593,13 @@ FORMAT_NAMES = {slug: disp for slug, disp, _ in FORMATS}
 PAGE_CSS = CSS + """
 .crumb { font-size: 12px; color: var(--muted); margin: 4px 0 10px; }
 .crumb a { color: var(--accent); text-decoration: none; }
-/* 個別ページではサイト名を見出しにせず小さなブランド行として出し、
-   ページの主題を h1 にする(SEOのための見出し階層。オーナー指示 2026-11-14) */
-header .brand { font-size: 15px; font-weight: 700; }
+/* 個別ページではサイト名を見出し要素にしないだけで、見た目はトップと
+   同じ大きさに揃える。ページの主題を h1 にする
+   (SEOのための見出し階層。オーナー指示 2026-11-14) */
+header .brand { font-size: 24px; font-weight: 700; }
 header .brand a { color: var(--text); text-decoration: none;
-  display: inline-flex; align-items: center; gap: 6px; }
-header .brand img { width: 26px; height: 26px; }
+  display: inline-flex; align-items: center; gap: 8px; }
+header .brand img { width: 44px; height: 44px; }
 main > h1 { font-size: 20px; margin: 2px 0 0; padding-left: 10px;
   border-left: 4px solid var(--accent); }
 .lead { font-size: 14px; margin: 8px 0 4px; }
