@@ -593,6 +593,14 @@ FORMAT_NAMES = {slug: disp for slug, disp, _ in FORMATS}
 PAGE_CSS = CSS + """
 .crumb { font-size: 12px; color: var(--muted); margin: 4px 0 10px; }
 .crumb a { color: var(--accent); text-decoration: none; }
+/* 個別ページではサイト名を見出しにせず小さなブランド行として出し、
+   ページの主題を h1 にする(SEOのための見出し階層。オーナー指示 2026-11-14) */
+header .brand { font-size: 15px; font-weight: 700; }
+header .brand a { color: var(--text); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px; }
+header .brand img { width: 26px; height: 26px; }
+main > h1 { font-size: 20px; margin: 2px 0 0; padding-left: 10px;
+  border-left: 4px solid var(--accent); }
 .lead { font-size: 14px; margin: 8px 0 4px; }
 .hist { list-style: none; margin-top: 10px; }
 .hist li { padding: 7px 0; border-bottom: 1px solid var(--line);
@@ -785,7 +793,7 @@ def render_identity_page(kind: str, slug: str, display: str, entry: dict, data: 
     sections = [
         f'<p class="crumb"><a href="{esc(site_url)}" data-google-vignette="false">'
         f'{esc(CONFIG["site_title"])} トップ</a> ＞ {esc(kind_label)} ＞ {esc(display)}</p>',
-        f"<h2>{esc(heading)}</h2>",
+        f"<h1>{esc(heading)}</h1>",
         f'<p class="lead">{esc(lead)}</p>',
     ]
     if current:
@@ -880,7 +888,7 @@ def render_identity_page(kind: str, slug: str, display: str, entry: dict, data: 
 </head>
 <body>
 <header>
-<h1><a href="{esc(site_url)}" data-google-vignette="false"><img src="{esc(site_url)}assets/logo.png" alt="" width="44" height="44">{esc(CONFIG["site_title"])}</a></h1>
+<p class="brand"><a href="{esc(site_url)}" data-google-vignette="false"><img src="{esc(site_url)}assets/logo.png" alt="" width="44" height="44">{esc(CONFIG["site_title"])}</a></p>
 <p>{esc(CONFIG["site_description"])} ｜ 割引率とポイント還元率の合計が{data["min_saving_percent"]}%以上の本を掲載 ｜ 最終更新: {updated}</p>
 </header>
 {header_ad}
