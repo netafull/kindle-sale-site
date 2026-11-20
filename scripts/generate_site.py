@@ -1443,6 +1443,83 @@ def generate_widget_data(data: dict, today: datetime.date | None = None) -> dict
     }
 
 
+JST = datetime.timezone(datetime.timedelta(hours=9))
+FEED_MAX_ITEMS = 20
+FEED_DAYS = 3
+
+
+def feed_campaign_date(c: dict) -> datetime.date | None:
+    """企画を見つけた日(JST)。since(JSTの日付)を優先し、無ければ since_at を JST に直す"""
+    d = parse_since_date(c.get("since"))
+    if d is not None:
+        return d
+    at = c.get("since_at")
+    if not at or not isinstance(at, str):
+        return None
+    try:
+        dt = datetime.datetime.fromisoformat(at)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        return dt.date()
+    return dt.astimezone(JST).date()
+
+
+def generate_feed_data(data: dict, now: datetime.datetime | None = None) -> dict:
+    """ポチフルのダッシュボード用 feed.json(仕様 v1)。
+
+    1件 = セール企画(サイトの掲載単位)。企画を見つけた日が直近3日以内のものを
+    新しい順に最大20件。url は index.html 内の企画の見出し(#c{番号})。
+    画像は企画内で割引率が最も高い本のもの。Amazon APIは呼ばない
+    """
+    now = now or datetime.datetime.now(JST)
+    today = now.astimezone(JST).date()
+    site_url = CONFIG.get("site_url", "")
+    site_name = CONFIG.get("site_title", "")
+    rows = []
+    for i, c in enumerate(data.get("campaigns") or []):
+        d = feed_campaign_date(c)
+        name = campaign_display_name(c.get("name") or "")
+        if d is None or not name or not c.get("node_id"):
+            continue
+        if not 0 <= (today - d).days <= FEED_DAYS - 1:
+            continue
+        best = None
+        for b in c.get("items") or []:
+            pct = usable_percent_off(b)
+            if pct is not None and (best is None or pct > best[0]):
+                best = (pct, b)
+        item = {
+            "id": f"book:{c['node_id']}",
+            "title": name,
+            "url": f"{site_url}#c{i}",
+            "date": d.isoformat(),
+        }
+        if best:
+            pct, b = best
+            price = b.get("price")
+            item["note"] = f"最大{int(round(pct))}%OFF" + (
+                f" ¥{price:,}" if isinstance(price, int) else ""
+            )
+            if b.get("image") and b.get("url"):
+                item["image"] = b["image"]
+                item["image_link"] = b["url"]
+        item["source"] = "book"
+        item["source_name"] = site_name
+        item["icon"] = None
+        rows.append((d, i, item))
+    # 新しい順。同じ日は掲載順(サイト上の並び)のまま
+    rows.sort(key=lambda r: (-r[0].toordinal(), r[1]))
+    return {
+        "version": 1,
+        "site": "book",
+        "site_name": site_name,
+        "site_url": site_url,
+        "generated": now.astimezone(JST).isoformat(timespec="seconds"),
+        "items": [r[2] for r in rows[:FEED_MAX_ITEMS]],
+    }
+
+
 def generate_widget_assets(data: dict) -> tuple[str, str]:
     widget_json = json.dumps(generate_widget_data(data), ensure_ascii=False, indent=2)
     site_url = CONFIG.get("site_url", "")
@@ -1479,12 +1556,16 @@ def main():
     widget_json, widget_js = generate_widget_assets(data)
     (DOCS / "widget.json").write_text(widget_json, encoding="utf-8")
     (DOCS / "widget.js").write_text(widget_js, encoding="utf-8")
+    (DOCS / "feed.json").write_text(
+        json.dumps(generate_feed_data(data), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     total = len(data.get("others") or []) + sum(
         len(c["items"]) for c in data.get("campaigns") or []
     )
     print(
         f"generated: index.html, rss.xml, sitemap.xml, robots.txt, "
-        f"widget.json, widget.js ({total}冊, 個別ページ{len(identity_pages)}件)"
+        f"widget.json, widget.js, feed.json ({total}冊, 個別ページ{len(identity_pages)}件)"
     )
 
 
