@@ -254,18 +254,6 @@ def render_related_html() -> str:
     return f'<div class="sites"><span class="lbl">関連サイト</span>\n{links}\n</div>'
 
 
-def render_policy_link() -> str:
-    """メディアポリシー(プライバシーポリシー・AdSenseのCookie告知を含む)は
-    netaful.jp/policy.html に既にある。各サイトに複製せずリンクで参照する"""
-    policy_url = CONFIG.get("policy_url", "")
-    if not policy_url:
-        return ""
-    return (
-        f'｜ <a href="{esc(policy_url)}" data-google-vignette="false" '
-        f'style="color:inherit">メディアポリシー</a>\n'
-    )
-
-
 def generate_html(data: dict, identity_nav: str = "") -> str:
     fetched = datetime.datetime.fromisoformat(data["fetched_at"]).astimezone(
         datetime.timezone(datetime.timedelta(hours=9))
@@ -364,7 +352,6 @@ def generate_html(data: dict, identity_nav: str = "") -> str:
         )
 
     related_html = render_related_html()
-    policy_link = render_policy_link()
 
     adsense_tag = render_adsense_tag()
     header_ad = render_ad_slot()
@@ -444,8 +431,8 @@ def generate_html(data: dict, identity_nav: str = "") -> str:
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
 Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
-当サイトはアクセス解析のためGoogle Analyticsを利用しています(データは匿名で収集され、Googleに送信されます)。
-{policy_link}｜ <a href="rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
+当サイトは広告（Google AdSense）を掲載し、アクセス解析（Googleアナリティクス）を使っています。いずれもCookieを使うことがあります。
+｜ <a href="rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
 {related_html}
 {SERIES_INDEX_HTML}
 </footer>
@@ -908,8 +895,8 @@ def render_identity_page(kind: str, slug: str, display: str, entry: dict, data: 
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
 Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
-当サイトはアクセス解析のためGoogle Analyticsを利用しています(データは匿名で収集され、Googleに送信されます)。
-{render_policy_link()}｜ <a href="{esc(site_url)}rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
+当サイトは広告（Google AdSense）を掲載し、アクセス解析（Googleアナリティクス）を使っています。いずれもCookieを使うことがあります。
+｜ <a href="{esc(site_url)}rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
 {render_related_html()}
 {SERIES_INDEX_HTML}
 </footer>
