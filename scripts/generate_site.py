@@ -854,10 +854,12 @@ def render_identity_page(kind: str, slug: str, display: str, entry: dict, data: 
                     "name": CONFIG["site_title"],
                     "item": site_url,
                 },
-                {"@type": "ListItem", "position": 2, "name": kind_label},
+                # 「出版社・版元別」「セールの型別」には一覧ページが無く URL を持てない。
+                # URL の無い途中の要素は Google が「item がありません」と警告するので、
+                # 構造化データでは省く(見えるパンくずの文字はそのまま)
                 {
                     "@type": "ListItem",
-                    "position": 3,
+                    "position": 2,
                     "name": display,
                     "item": canonical,
                 },

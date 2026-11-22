@@ -4,6 +4,7 @@
 Amazon APIは呼ばない(ダミーデータだけで検証する)。
 """
 
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -227,6 +228,15 @@ class IdentityPages(unittest.TestCase):
         self.assertIn("<title>Kindle本の週末セール｜電書ポチ</title>", html)
         self.assertIn("Amazonマンガ週末祭 第4弾", html)
         self.assertIn("2026/7/28〜7/31", html)
+
+    def test_breadcrumb_items_all_have_url(self):
+        # Google は item(URL)の無い要素を「item がありません」と警告する(2026-11-21 に4件)
+        for path, html in self.pages.items():
+            raw = html.split('<script type="application/ld+json">', 1)[1].split("</script>", 1)[0]
+            crumbs = json.loads(raw.replace("<\\/", "</"))["itemListElement"]
+            self.assertEqual([c["position"] for c in crumbs], list(range(1, len(crumbs) + 1)), path)
+            for c in crumbs:
+                self.assertTrue(c.get("item", "").startswith("https://book.netaful.jp/"), (path, c))
 
     def test_no_page_without_data(self):
         # 開催実績の無い出版社はマッピングにあってもページを作らない
