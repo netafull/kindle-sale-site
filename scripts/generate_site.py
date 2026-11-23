@@ -431,7 +431,7 @@ def generate_html(data: dict, identity_nav: str = "") -> str:
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
 Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
-当サイトは広告（Google AdSense）を掲載し、アクセス解析（Googleアナリティクス）を使っています。いずれもCookieを使うことがあります。
+当サイトはGoogle AdSenseを掲載し、Googleアナリティクスを使っています。いずれもCookieを使うことがあります。
 ｜ <a href="rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
 {related_html}
 {SERIES_INDEX_HTML}
@@ -895,7 +895,7 @@ def render_identity_page(kind: str, slug: str, display: str, entry: dict, data: 
 <footer>
 価格・割引率は取得時点のものです。購入前にAmazonの商品ページで最新の価格をご確認ください。
 Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
-当サイトは広告（Google AdSense）を掲載し、アクセス解析（Googleアナリティクス）を使っています。いずれもCookieを使うことがあります。
+当サイトはGoogle AdSenseを掲載し、Googleアナリティクスを使っています。いずれもCookieを使うことがあります。
 ｜ <a href="{esc(site_url)}rss.xml" data-google-vignette="false" style="color:inherit">RSS</a>
 {render_related_html()}
 {SERIES_INDEX_HTML}
